@@ -3,7 +3,7 @@
 token: env:TOKEN
 
 # Message command prefix
-prefix: '!'
+prefix: 'e'
 
 
 # Commands options
@@ -12,14 +12,14 @@ commands:
     # enable message commands
     enabled: true
     # reply when an error occured
-    replyOnError: false
+    replyOnError: true
     # command argument separator
     commandArgumentSeparator: ' '
   interactionCommand:
     # enable interaction commands
     enabled: true
     # reply when an error occured
-    replyOnError: false
+    replyOnError: true
     # register interaction commands on bot ready
     registerCommands: true
     # set required permissions for interaction commands

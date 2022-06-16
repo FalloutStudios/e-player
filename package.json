@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@discordjs/opus": "^0.7.0",
     "@ghextercortes/djs-pagination": "^0.0.9",
     "discord-music-player": "^8.3.2",
     "discord.js": "^13.8.0",

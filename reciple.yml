@@ -12,20 +12,20 @@ commands:
     # enable message commands
     enabled: true
     # reply when an error occured
-    replyOnError: true
+    replyOnError: false
     # command argument separator
     commandArgumentSeparator: ' '
   interactionCommand:
     # enable interaction commands
     enabled: true
     # reply when an error occured
-    replyOnError: true
+    replyOnError: false
     # register interaction commands on bot ready
     registerCommands: true
     # set required permissions for interaction commands
     setRequiredPermissions: true
     # register commands to specific guild(s) empty to make it global
-    guilds: []
+    guilds: ['876039624814899220']
 
 
 # Commands permissions
@@ -59,21 +59,22 @@ fileLogging:
   # enable console output to file
   enabled: true
   # enable debug mode
-  debugmode: false
+  debugmode: true
   # stringify logged JSONs
-  stringifyLoggedJSON: false
+  stringifyLoggedJSON: true
   # log file path
   logFilePath: './logs/latest.log'
 
 # Client options
 client:
+  repliedUser: false
+  allowedMentions:
+    parse: ['users', 'roles']
   intents:
     - 'GUILDS'
     - 'GUILD_MEMBERS'
-    - 'GUILD_INVITES'
-    - 'GUILD_VOICE_STATES'
     - 'GUILD_MESSAGES'
-    - 'GUILD_MESSAGE_REACTIONS'
+    - 'GUILD_VOICE_STATES'
 
 # Bot replies
 messages:
@@ -86,8 +87,7 @@ messages:
     ephemeral: true
 
 # Ignored Files
-ignoredFiles:
-  - 'test.js'
+ignoredFiles: []
 
 
 ###################################################
@@ -105,4 +105,4 @@ ignoredFiles:
 modulesFolder: 'modules'
 
 # Current version
-version: 1.3.3
+version: 1.4.2

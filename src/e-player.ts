@@ -142,7 +142,16 @@ export class EPlayer implements RecipleScript {
 
     public static getDefaultCommandDescriptions(): EPlayerConfig["commandDescriptions"] {
         return {
-            play: "Play"
+            play: "Play media.",
+            pause: "Toggle pause currently playing media.",
+            resume: "Toggle resume currently playing media.",
+            shuffle: "Shuffle tracks in queue.",
+            lyrics: "Search or get lyrics of currently playing media.",
+            clear: "Clear tracks in queue.",
+            'now-playing': "Show current playing media.",
+            'remove-track': "Remove track from queue.",
+            stop: "Stop playing and clear queue.",
+            queue: "Show queue tracks",
         };
     }
 

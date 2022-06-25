@@ -874,10 +874,10 @@ readable-stream@^3.6.0:
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
-reciple@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/reciple/-/reciple-1.4.2.tgz#8e4c8d25d19510663eca4e5a5d28640c9f15f254"
-  integrity sha512-NvVrUnFtorM7nRpMEF92z5dTb+M2Ucfl9dkPxXZHXToWZuRjnAy5y9kcUZxPL7EYoWpVRI9HHAN394a7QZ2SJQ==
+reciple@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/reciple/-/reciple-1.5.0.tgz#4f45c38d326f550d618166ad9012352ba5dda018"
+  integrity sha512-i8F64voOXTQlSgHyHFrnyfl1wkeZFXj9024OLVbje8WMLGsfON3/fQ9blSqfeh7p5jz8bpJaNnSEdVwVWrjkow==
   dependencies:
     commander "^9.3.0"
     discord.js "^13.8.1"

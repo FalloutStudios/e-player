@@ -15,7 +15,7 @@ export interface BotStatusConfig {
 }
 
 export class BotStatus implements RecipleScript {
-    public versions: string | string[] = ['1.4.x'];
+    public versions: string | string[] = ['1.5.x'];
     public config: BotStatusConfig = BotStatus.getConfig();
     public activities: BotStatusConfig["activities"] = [];
     public currentStatus: number = 0;

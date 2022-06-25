@@ -28,10 +28,10 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
 
                 if (!track) return interaction.reply({ embeds: [Player.getMessageEmbed('isRequired', false, 'track-id')] });
                 if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
-                if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return interaction.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
+                if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const removedTrack = removeTrack(queue, track);
                 if (typeof removedTrack == 'string') return interaction.reply({ embeds: [Player.getMessageEmbed(removedTrack)] });
@@ -57,10 +57,10 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
 
                 if (!track) return message.reply({ embeds: [Player.getMessageEmbed('isRequired', false, 'track-id')] });
                 if (!guild || !member) return message.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
-                if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
+                if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const removedTrack = removeTrack(queue, track);
                 if (typeof removedTrack == 'string') return message.reply({ embeds: [Player.getMessageEmbed(removedTrack)] });

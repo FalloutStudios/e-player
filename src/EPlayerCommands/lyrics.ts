@@ -13,6 +13,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
         while (i < str.length) {
             split.push(str.substring(i, i += maxLength));
         }
+
         return split;
     }
 

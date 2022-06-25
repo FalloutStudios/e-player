@@ -1,4 +1,4 @@
-import { Player, PlayerInitOptions } from 'discord-player';
+import { Player, PlayerInitOptions, Queue } from 'discord-player';
 import { RecipleClient, recipleCommandBuilders, RecipleScript } from 'reciple';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import path from 'path';
@@ -25,7 +25,7 @@ export interface EPlayerMetadata {
 export type PlayerCommandModule = (Player: EPlayer) => Awaitable<(recipleCommandBuilders)[]>;
 
 export class EPlayer implements RecipleScript {
-    public versions: string | string[] = ['1.4.x'];
+    public versions: string | string[] = ['1.5.x'];
     public config: EPlayerConfig = EPlayer.getConfig();
     public commands: recipleCommandBuilders[] = [];
     public modules: PlayerCommandModule[] = [];
@@ -42,7 +42,7 @@ export class EPlayer implements RecipleScript {
         this.logger.log(`Starting E Player...`);
         await this.loadCommands();
 
-        this.commands = this.commands.map(c => c.setDescription(this.config.commandDescriptions[c.name] ?? 'No description provided'));
+        this.commands = this.commands.map(c => c.setDescription(this.config.commandDescriptions[c.name] ?? EPlayer.getDefaultCommandDescriptions()[c.name] ?? 'No description provided'));
         this.commands = this.commands.filter(c => !this.config.ignoredCommands.some(i => i.toLowerCase() == c.name.toLowerCase()));
 
         return true;
@@ -50,6 +50,16 @@ export class EPlayer implements RecipleScript {
 
     public async onLoad(): Promise<void> {
         this.logger.log(`Loaded E Player!`);
+    }
+
+    public pauseToggle(queue: Queue): 'PAUSED'|'RESUMED'|'ERROR' {
+        if (queue.setPaused(true)) {
+            return 'PAUSED';
+        } else if (queue.setPaused(false)) {
+            return 'RESUMED';
+        } else {
+            return 'ERROR';
+        }
     }
 
     public getMessageEmbed(messageKey: string, positive: boolean = false, ...placeholders: string[]): MessageEmbed {
@@ -77,7 +87,7 @@ export class EPlayer implements RecipleScript {
     }
 
     public getMessage(messageKey: string, ...placeholders: string[]): string {
-        let message = this.config.messages[messageKey] ?? messageKey;
+        let message = this.config.messages[messageKey] ?? EPlayer.getDefaultMessages()[messageKey] ?? messageKey;
         if (!placeholders?.length) return message;
 
         for (let i=0; i < placeholders.length; i++) {
@@ -151,9 +161,13 @@ export class EPlayer implements RecipleScript {
             trackNotFound: 'Track not found',
             isRequired: 'description:\`{0}\` is required',
             error: 'Error occurred',
+            noQueue: 'No queue available',
             skip: 'description:<@{2}> skipped **{0}**',
+            pause: 'description:<@{2}> paused **{0}**',
+            resume: 'description:<@{2}> resumed **{0}**',
             removeTrack: `description:<@{2}> removed **{0}** from queue`,
-            shuffle: `description:<@{1}> shuffled the queue`
+            shuffle: `description:<@{1}> shuffled the queue`,
+            stop: `description:<@{1}> stopped the player`
         };
     }
 }

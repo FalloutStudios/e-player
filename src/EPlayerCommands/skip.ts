@@ -26,12 +26,11 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const member = interaction.member as GuildMember;
                 const guild = interaction.guild;
                 const track = interaction.options.getNumber('skip-to') ?? undefined;
-
                 if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
-                if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return interaction.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
+                if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const skippedTrack = queue.nowPlaying();
                 const skipped = skip(queue, track);
@@ -56,12 +55,11 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const member = message.member;
                 const guild = message.guild;
                 const track = isNumber(command.command.args[0]) ? Number(command.command.args[0]) : undefined;
-
                 if (!guild || !member) return message.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
-                if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
+                if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const skippedTrack = queue.nowPlaying();
                 const skipped = skip(queue, track);

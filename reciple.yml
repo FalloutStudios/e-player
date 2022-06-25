@@ -3,7 +3,7 @@
 token: env:TOKEN
 
 # Message command prefix
-prefix: 'e'
+prefix: 'e!'
 
 
 # Commands options
@@ -25,7 +25,7 @@ commands:
     # set required permissions for interaction commands
     setRequiredPermissions: true
     # register commands to specific guild(s) empty to make it global
-    guilds: ['876039624814899220']
+    guilds: ['876039624814899220','989314797344538654']
 
 
 # Commands permissions
@@ -33,15 +33,11 @@ permissions:
   messageCommands:
     # enable command permissions
     enabled: true
-    commands:
-      - command: 'stop'
-        permissions: ['ADMINISTRATOR']
+    commands: []
   interactionCommands:
     # enable command permissions
     enabled: true
-    commands:
-      - command: 'stop'
-        permissions: ['ADMINISTRATOR']
+    commands: []
 
 
 # Ignored channel IDs
@@ -105,4 +101,4 @@ ignoredFiles: []
 modulesFolder: 'modules'
 
 # Current version
-version: 1.4.2
+version: 1.5.0

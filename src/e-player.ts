@@ -146,10 +146,11 @@ export class EPlayer implements RecipleScript {
             pause: "Toggle pause currently playing media.",
             resume: "Toggle resume currently playing media.",
             shuffle: "Shuffle tracks in queue.",
+            loop: 'Set loop mode for this queue.',
             lyrics: "Search or get lyrics of currently playing media.",
             clear: "Clear tracks in queue.",
             'now-playing': "Show current playing media.",
-            'remove-track': "Remove track from queue.",
+            remove: "Remove track from queue.",
             stop: "Stop playing and clear queue.",
             queue: "Show queue tracks",
         };
@@ -173,8 +174,10 @@ export class EPlayer implements RecipleScript {
             noQueue: 'No queue available',
             clear: 'description:<@{2}> cleared `{0} track(s)`',
             skip: 'description:<@{2}> skipped **{0}**',
+            move: 'description:<@{2}> moved **{0}**',
             pause: 'description:<@{2}> paused **{0}**',
             resume: 'description:<@{2}> resumed **{0}**',
+            repeat: 'description:<@{2}> set loop mode to `{0}`',
             removeTrack: `description:<@{2}> removed **{0}** from queue`,
             shuffle: `description:<@{1}> shuffled the queue`,
             stop: `description:<@{1}> stopped the player`

@@ -7,7 +7,6 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
         const message = command.message;
         const member = message.member;
         const guild = message.guild;
-
         if (!guild || !member) return message.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
 
         const queue = Player.player.getQueue(guild);
@@ -27,7 +26,6 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
         const interaction = command.interaction;
         const member = interaction.member as GuildMember;
         const guild = interaction.guild;
-
         if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
 
         const queue = Player.player.getQueue(guild);

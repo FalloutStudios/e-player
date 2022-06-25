@@ -45,10 +45,10 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('skip')
+            .setValidateOptions(true)
             .addOption(skipTo => skipTo
                 .setName('skip-to')
                 .setDescription('Skip to track number')
-                .setRequired(false)
                 .setValidator((val) => isNumber(val) && Number(val) >= 1)
             )
             .setExecute(async command => {

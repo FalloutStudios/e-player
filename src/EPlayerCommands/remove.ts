@@ -14,19 +14,18 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
 
     return [
         new InteractionCommandBuilder()
-            .setName('remove-track')
+            .setName('remove')
             .addNumberOption(skipTo => skipTo
                 .setName('track-id')
                 .setDescription('Track to remove')
+                .setRequired(true)
                 .setMinValue(1)
             )
             .setExecute(async command => {
                 const interaction = command.interaction;
                 const member = interaction.member as GuildMember;
                 const guild = interaction.guild;
-                const track = interaction.options.getNumber('track-id') ?? undefined;
-
-                if (!track) return interaction.reply({ embeds: [Player.getMessageEmbed('isRequired', false, 'track-id')] });
+                const track = interaction.options.getNumber('track-id', true);
                 if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
 
                 const queue = Player.player.getQueue(guild);
@@ -43,10 +42,12 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 });
             }),
         new MessageCommandBuilder()
-            .setName('remove-track')
+            .setName('remove')
+            .setValidateOptions(true)
             .addOption(skipTo => skipTo
                 .setName('track-id')
                 .setDescription('Track to remove')
+                .setRequired(true)
                 .setValidator((val) => isNumber(val) && Number(val) >= 1)
             )
             .setExecute(async command => {

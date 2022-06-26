@@ -44,3 +44,5 @@ export class Contribute implements RecipleScript {
         };
     }
 }
+
+export default new Contribute();

@@ -55,7 +55,7 @@ fileLogging:
   # enable console output to file
   enabled: true
   # enable debug mode
-  debugmode: true
+  debugmode: false
   # stringify logged JSONs
   stringifyLoggedJSON: true
   # log file path

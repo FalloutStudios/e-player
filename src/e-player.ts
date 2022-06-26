@@ -283,7 +283,7 @@ export class EPlayer implements RecipleScript {
 
     public static getDefaultMessages(): EPlayerConfig["messages"] {
         return {
-            embedColor: 'ORANGE',
+            embedColor: '#de111e',
             errorEmbedColor: 'RED',
             loading: 'Please wait...',
             connectionError: 'Bot disconnected due to connection error',

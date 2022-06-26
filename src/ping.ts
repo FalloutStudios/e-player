@@ -1,5 +1,6 @@
 import { ColorResolvable, Message, MessageEmbed } from 'discord.js';
 import { getRandomKey } from 'fallout-utility';
+import ms from 'ms';
 import { InteractionCommandBuilder, MessageCommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import player from './e-player';
 
@@ -30,7 +31,7 @@ export default new (class implements RecipleScript {
 
                     const embed = new MessageEmbed()
                         .setAuthor({ name: 'Pong!', iconURL: client.user?.displayAvatarURL() })
-                        .setDescription(`\`\`\`bash\nBot Latency: ${latency}ms\nAPI Latency: ${apiLatency}ms\n\`\`\``)
+                        .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency, { long: true })}\nAPI Latency: ${ms(apiLatency, { long: true })}\n\`\`\``)
                         .setColor(player.getMessage('embedColor') as ColorResolvable);
 
                     reply.edit({ embeds: [embed] });
@@ -50,7 +51,7 @@ export default new (class implements RecipleScript {
 
                         const embed = new MessageEmbed()
                             .setAuthor({ name: 'Pong!', iconURL: client.user?.displayAvatarURL() })
-                            .setDescription(`\`\`\`bash\nBot Latency: ${latency}ms\nAPI Latency: ${apiLatency}ms\n\`\`\``)
+                            .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency, { long: true })}\nAPI Latency: ${ms(apiLatency, { long: true })}\n\`\`\``)
                             .setColor(player.getMessage('embedColor') as ColorResolvable);
 
                         await interaction.editReply({ embeds: [embed] });

@@ -16,7 +16,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
 
         if (!search || !(search.playlist?.tracks ?? search.tracks).length) return 'noResults';
 
-        const queue = Player.player.createQueue<EPlayerMetadata>(guild, { metadata: { textChannel } });
+        const queue = Player.player.createQueue<EPlayerMetadata>(guild, { ...Player.config.settings, metadata: { textChannel } });
         const connection = !queue.connection || !guild.me?.voice.channel
             ? await queue.connect(member.voice.channel).catch(() => false)
             : true;

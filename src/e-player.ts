@@ -1,18 +1,24 @@
-import { Player, PlayerInitOptions, Queue } from 'discord-player';
+import { Player, PlayerInitOptions, PlayerOptions, Queue, Track } from 'discord-player';
 import { RecipleClient, recipleCommandBuilders, RecipleScript } from 'reciple';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import path from 'path';
 import yml from 'yaml';
 import { createConfig } from './_createConfig';
-import { Awaitable, ColorResolvable, MessageEmbed, TextBasedChannel } from 'discord.js';
+import { Awaitable, ColorResolvable, GuildMember, Message, MessageActionRow, MessageButton, MessageEmbed, TextBasedChannel } from 'discord.js';
 import { existsSync, mkdirSync, readdirSync } from 'fs';
 
 export interface EPlayerConfig {
     ignoredCommands: string[];
+    nowPlayingMessage: {
+        enabled: boolean;
+        addButtons: boolean;
+        deletedSentPlayedMessage: boolean;
+    };
     commandDescriptions: {
         [commandName: string]: string;
-    },
+    };
     player: PlayerInitOptions;
+    settings: PlayerOptions;
     messages: {
         [messageKey: string]: string;
     }
@@ -45,6 +51,11 @@ export class EPlayer implements RecipleScript {
         this.commands = this.commands.map(c => c.setDescription(this.config.commandDescriptions[c.name] ?? EPlayer.getDefaultCommandDescriptions()[c.name] ?? 'No description provided'));
         this.commands = this.commands.filter(c => !this.config.ignoredCommands.some(i => i.toLowerCase() == c.name.toLowerCase()));
 
+        this.player.on('connectionError', (queue, error) => this.connectionError(queue as Queue<EPlayerMetadata>, error));
+        this.player.on('error', (queue, error) => this.connectionError(queue as Queue<EPlayerMetadata>, error));
+        this.player.on('debug', (queue, message) => this.logger.debug(`${queue.id}: ${message}`))
+        this.player.on('trackStart', (queue, track) => this.nowPlayingMessage(queue as Queue<EPlayerMetadata>, track))
+
         return true;
     }
 
@@ -52,10 +63,110 @@ export class EPlayer implements RecipleScript {
         this.logger.log(`Loaded E Player!`);
     }
 
+    public async nowPlayingMessage(queue: Queue<EPlayerMetadata>, track: Track): Promise<void> {
+        this.logger?.debug(`Track started queue ${queue.id} in guild ${queue.guild.name}: ${track.title}`);
+        if (!queue.metadata?.textChannel || !this.config.nowPlayingMessage.enabled) return;
+
+        const embed = new MessageEmbed().setColor(this.getMessage('embedColor') as ColorResolvable);
+
+        embed.setAuthor({ name: `Now playing`, iconURL: this.client.user?.displayAvatarURL() });
+        embed.setFooter({ text: `Requested by ${track.requestedBy.tag}`, iconURL: track.requestedBy.displayAvatarURL() });
+        embed.setThumbnail(track.thumbnail);
+        embed.setTitle(track.title);
+        embed.setURL(track.url);
+
+        const message = await queue.metadata.textChannel.send({ embeds: [embed], components: [EPlayer.playerButtons()] }).catch(() => {});
+        if (!message) return;
+
+        const collector = this.addPlayingCollector(message, track, queue);
+
+        queue.connection.once('start', (a) => {
+            if (a.metadata.id === track.id) return;
+            collector.stop();
+
+            this.logger?.debug(`Track ended queue ${queue.id} in guild ${queue.guild.name}: ${track.title}`);
+        });
+
+        queue.connection.once('finish', (a) => {
+            if (a.metadata.id !== track.id) return;
+            collector.stop();
+
+            this.logger?.debug(`Track ended queue ${queue.id} in guild ${queue.guild.name}: ${track.title}`);
+        });
+    }
+
+    public addPlayingCollector(message: Message, track: Track, queue: Queue<EPlayerMetadata>) {
+        const collector = message.createMessageComponentCollector({
+            filter: (c) => c.customId === 'player-pause-toggle' || c.customId === 'player-skip' || c.customId === 'player-stop'
+        });
+
+        collector.on('collect', async (c) => {
+            if (queue.destroyed) {
+                collector.stop();
+                await c.deferUpdate().catch(() => {});
+                return;
+            }
+
+            if (queue.nowPlaying().id !== track.id) {
+                collector.stop();
+                await c.deferUpdate().catch(() => {});
+                return;
+            }
+
+            if ((c.member as GuildMember).voice.channelId !== queue.connection.channel.id) {
+                await c.deferUpdate().catch(() => {});
+                return;
+            }
+
+            await c.deferReply().catch(() => {});
+
+            switch (c.customId) {
+                case 'player-pause-toggle':
+                    const pause = this.pauseToggle(queue);
+                    if (pause == 'ERROR') {
+                        c.editReply({ embeds: [this.getMessageEmbed('error')] }).catch(() => {});
+                        break;
+                    }
+
+                    c.editReply({ embeds: [this.getMessageEmbed(pause == 'PAUSED' ? 'pause' : 'resume', true, track.title, c.user.tag, c.user.id)] }).catch(() => {});
+                    break;
+                case 'player-skip':
+                    const skip = queue.skip();
+
+                    c.editReply({ embeds: [this.getMessageEmbed(skip ? 'skip' : 'error', skip, track.title, c.user.tag, c.user.id)] }).catch(() => {});
+                    break;
+                case 'player-stop':
+                    queue.destroy(true);
+                    c.editReply({ embeds: [this.getMessageEmbed('stop', true, c.user.tag, c.user.id)] }).catch(() => {});
+            }
+        });
+
+        collector.on('end', async () => {
+            if (this.config.nowPlayingMessage.deletedSentPlayedMessage) {
+                message.delete().catch(() => {});
+                return;
+            }
+
+            await message.edit({ components: [EPlayer.playerButtons(true)] }).catch(() => {});
+        });
+
+        return collector;
+    }
+
+    public connectionError(queue: Queue<EPlayerMetadata>, error: Error) {
+        const channel = queue.metadata?.textChannel;
+
+        this.logger.debug(`ERROR: Connection Error: ${queue.id}`);
+        this.logger.debug(error);
+
+        queue.destroy(true);
+        if (channel) channel.send({ embeds: [this.getMessageEmbed('connectionError', false, error.message, error.name)] }).catch(() => {});
+    }
+
     public pauseToggle(queue: Queue): 'PAUSED'|'RESUMED'|'ERROR' {
-        if (queue.setPaused(true)) {
+        if (!queue.connection.paused && queue.setPaused(true)) {
             return 'PAUSED';
-        } else if (queue.setPaused(false)) {
+        } else if (queue.connection.paused && queue.setPaused(false)) {
             return 'RESUMED';
         } else {
             return 'ERROR';
@@ -130,7 +241,21 @@ export class EPlayer implements RecipleScript {
         const configPath = path.join(process.cwd(), 'config/EPlayer/config.yml');
         const defaultConfig: EPlayerConfig = {
             ignoredCommands: [],
+            nowPlayingMessage: {
+                enabled: true,
+                addButtons: true,
+                deletedSentPlayedMessage: true
+            },
             commandDescriptions: this.getDefaultCommandDescriptions(),
+            settings: {
+                autoSelfDeaf: true,
+                disableVolume: true,
+                leaveOnEmpty: true,
+                leaveOnEmptyCooldown: 10000,
+                leaveOnEnd: true,
+                leaveOnStop: true,
+                spotifyBridge: true,
+            },
             player: {
                 connectionTimeout: 10000
             },
@@ -161,6 +286,7 @@ export class EPlayer implements RecipleScript {
             embedColor: 'ORANGE',
             errorEmbedColor: 'RED',
             loading: 'Please wait...',
+            connectionError: 'Bot disconnected due to connection error',
             noQueryProvided: 'Enter a search query or link',
             notInVoiceChannel: 'Join a voice channel',
             InDifferentVoiceChannel: 'You are not in my current voice channel',
@@ -182,6 +308,27 @@ export class EPlayer implements RecipleScript {
             shuffle: `description:<@{1}> shuffled the queue`,
             stop: `description:<@{1}> stopped the player`
         };
+    }
+
+    public static playerButtons(disabled: boolean = false): MessageActionRow {
+        return new MessageActionRow()
+            .setComponents(
+                new MessageButton()
+                    .setCustomId('player-pause-toggle')
+                    .setLabel('Pause/Resume')
+                    .setStyle('PRIMARY')
+                    .setDisabled(disabled),
+                new MessageButton()
+                    .setCustomId('player-skip')
+                    .setLabel('Skip')
+                    .setStyle('SECONDARY')
+                    .setDisabled(disabled),
+                new MessageButton()
+                    .setCustomId('player-stop')
+                    .setLabel('Stop')
+                    .setStyle('DANGER')
+                    .setDisabled(disabled)
+            );
     }
 }
 

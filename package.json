@@ -4,9 +4,9 @@
     "description": "Discord music player",
     "author": "GhexterCortes",
     "scripts": {
-        "clean": "rm -rf ./modules",
-        "build": "yarn clean && npx tsc",
-        "test": "yarn build && yarn start",
+        "clean": "node clearmodules.js",
+        "build": "npm run clean && npx tsc",
+        "test": "npm run build && npm run start",
         "start": "npx reciple"
     },
     "dependencies": {

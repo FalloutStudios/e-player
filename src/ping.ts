@@ -1,10 +1,11 @@
 import { ColorResolvable, Message, MessageEmbed } from 'discord.js';
 import { getRandomKey } from 'fallout-utility';
-import { InteractionCommandBuilder, MessageCommandBuilder, RecipleClient, RecipleScript, version } from 'reciple';
+import { InteractionCommandBuilder, MessageCommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import player from './e-player';
 
 export default new (class implements RecipleScript {
     public versions: string[] = ['1.5.x'];
+    public category: string = '🪄 Miscellaneous';
     public commands: (MessageCommandBuilder|InteractionCommandBuilder)[] = [];
 
     public onStart(client: RecipleClient) {

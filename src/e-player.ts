@@ -34,6 +34,7 @@ export class EPlayer implements RecipleScript {
     public versions: string | string[] = ['1.5.x'];
     public config: EPlayerConfig = EPlayer.getConfig();
     public commands: recipleCommandBuilders[] = [];
+    public category: string = '🎶 Music';
     public modules: PlayerCommandModule[] = [];
     public client!: RecipleClient;
     public logger!: Logger;
@@ -276,6 +277,7 @@ export class EPlayer implements RecipleScript {
             clear: "Clear tracks in queue.",
             'now-playing': "Show current playing media.",
             remove: "Remove track from queue.",
+            move: 'Move track to another position.',
             stop: "Stop playing and clear queue.",
             queue: "Show queue tracks",
         };

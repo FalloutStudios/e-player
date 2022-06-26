@@ -5,6 +5,7 @@ import player from './e-player';
 export class Invite implements RecipleScript {
     public versions: string | string[] = ['1.5.x'];
     public commands: recipleCommandBuilders[] = [];
+    public category: string = '🪄 Miscellaneous';
     public message!: { embeds: MessageEmbed[], components: MessageActionRow[] };
 
     public async onStart(): Promise<boolean> {

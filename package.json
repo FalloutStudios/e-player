@@ -6,7 +6,7 @@
     "scripts": {
         "clean": "node clearmodules.js",
         "build": "npm run clean && npx tsc",
-        "test": "npm run build && npx reciple -D",
+        "test": "npm run build && npx reciple -D -c reciple.test.yml",
         "start": "npx reciple"
     },
     "dependencies": {

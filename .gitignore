@@ -127,6 +127,6 @@ dist
 .pnp.*
 
 # more
-src/test.js
+src/test.ts
 modules
 config

@@ -277,6 +277,7 @@ export class EPlayer implements RecipleScript {
             clear: "Clear tracks in queue.",
             'now-playing': "Show current playing media.",
             remove: "Remove track from queue.",
+            previous: "Play previous track.",
             move: 'Move track to another position.',
             stop: "Stop playing and clear queue.",
             queue: "Show queue tracks",
@@ -308,6 +309,7 @@ export class EPlayer implements RecipleScript {
             repeat: 'description:<@{2}> set loop mode to `{0}`',
             removeTrack: `description:<@{2}> removed **{0}** from queue`,
             shuffle: `description:<@{1}> shuffled the queue`,
+            previous: `description:<@{0}> played the previous track`,
             stop: `description:<@{1}> stopped the player`
         };
     }

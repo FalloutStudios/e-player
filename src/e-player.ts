@@ -138,7 +138,7 @@ export class EPlayer implements RecipleScript {
                         break;
                     }
 
-                    c.editReply({ embeds: [this.getMessageEmbed('previous', c.user.tag, c.user.id)] });
+                    c.editReply({ embeds: [this.getMessageEmbed('previous', true, c.user.tag, c.user.id)] });
                     break;
                 case 'player-skip':
                     const skip = queue.skip();

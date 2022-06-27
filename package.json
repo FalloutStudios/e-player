@@ -2,7 +2,7 @@
     "name": "e-player",
     "version": "1.0.0",
     "description": "Discord music player",
-    "author": "GhexterCortes",
+    "author": "FalloutStudios",
     "scripts": {
         "clean": "node clearmodules.js",
         "build": "npm run clean && npx tsc",

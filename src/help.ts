@@ -38,7 +38,7 @@ export class HelpCommand implements RecipleScript {
         for (const script of Object.values(client.modules) as (RecipleScript & { category?: string })[]) {
             if (!script.category) continue;
 
-            let commands = script.commands?.filter(c => c.builder == 'MESSAGE_COMMAND' && (filter ? c.name.includes(filter) : true)) as MessageCommandBuilder[];
+            let commands = (script.commands?.filter(c => c.builder == 'MESSAGE_COMMAND' && (filter ? c.name.includes(filter) : true)) as MessageCommandBuilder[]) ?? [];
                 commands = !member ? commands : commands.filter(c => hasPermissions(c.name, member.permissions, client.config.permissions.messageCommands));
 
             if (!commands.length) continue;

@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Discord music player",
     "author": "FalloutStudios",
+    "license": "GPL-3.0",
     "scripts": {
         "clean": "node clearmodules.js",
         "build": "npm run clean && npx tsc",

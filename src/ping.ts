@@ -16,8 +16,6 @@ export default new (class implements RecipleScript {
                 .setDescription('Pong!')
                 .setExecute(async command => {
                     const message = command.message;
-                    const date = new Date();
-
                     const reply = await message.reply({
                         embeds: [
                             new MessageEmbed()
@@ -26,72 +24,31 @@ export default new (class implements RecipleScript {
                         ]
                     });
 
-                    const latency = reply.createdTimestamp - date.getTime();
-                    const apiLatency = command.client.ws.ping;
-
-                    const embed = new MessageEmbed()
-                        .setAuthor({ name: 'Pong!', iconURL: client.user?.displayAvatarURL() })
-                        .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency, { long: true })}\nAPI Latency: ${ms(apiLatency, { long: true })}\n\`\`\``)
-                        .setColor(player.getMessage('embedColor') as ColorResolvable);
-
-                    reply.edit({ embeds: [embed] });
+                    reply.edit({ embeds: [this.getEmbed(client, reply)] });
                 }),
                 new InteractionCommandBuilder()
                     .setName('ping')
                     .setDescription('Shows bot latency')
                     .setExecute(async command => {
                         const interaction = command.interaction;
-                        const date = new Date();
 
                         await interaction.deferReply();
 
                         const reply = await interaction.fetchReply() as Message;
-                        const latency = reply.createdTimestamp - date.getTime();
-                        const apiLatency = command.client.ws.ping;
-
-                        const embed = new MessageEmbed()
-                            .setAuthor({ name: 'Pong!', iconURL: client.user?.displayAvatarURL() })
-                            .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency, { long: true })}\nAPI Latency: ${ms(apiLatency, { long: true })}\n\`\`\``)
-                            .setColor(player.getMessage('embedColor') as ColorResolvable);
-
-                        await interaction.editReply({ embeds: [embed] });
+                        await interaction.editReply({ embeds: [this.getEmbed(client, reply)] });
                     })
             ];
 
         return true;
     }
 
-    public getEmail(text: string): string {
-        const emails: string[] = [
-            `${text}@yahoo.com`,
-            `${text}iscool@gmail.com`,
-            `pretty${text}@outlook.com`,
-            `susperson@among.us`,
-            `2inchpp@gmail.com`,
-            `GFTYtfrtyh@krazy.net`,
-            `${text}@among.us`
-        ];
+    public getEmbed(client: RecipleClient, reply: Message) {
+        const latency = reply.createdTimestamp - Date.now();
+        const apiLatency = client.ws.ping;
 
-        return getRandomKey(emails);
-    }
-
-    public getPassword(text: string): string {
-        const passwords: string[] = [
-            '1234567890',
-            'qwertyuiop',
-            'asdfghjkl',
-            'smallpp123',
-            `${text}123`,
-            `${text}noob`,
-            `${text}notfound`,
-            `8==D`,
-            `iamnoob`,
-        ];
-
-        return getRandomKey(passwords);
-    }
-
-    public sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new MessageEmbed()
+            .setAuthor({ name: 'Pong!', iconURL: client.user?.displayAvatarURL() })
+            .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency < 0 ? 0 : latency, { long: true })}\nAPI Latency: ${ms(apiLatency < 0 ? 0 : apiLatency, { long: true })}\nUptime: ${ms(process.uptime() * 1000, { long: true })}\`\`\``)
+            .setColor(player.getMessage('embedColor') as ColorResolvable);
     }
 })();

@@ -24,4 +24,6 @@ export class Guilds implements RecipleScript {
             this.logger.debug(`Added new guild ${guild.name} with ${guild.memberCount} member(s)`);
         });
     }
-};
+}
+
+export default new Guilds();

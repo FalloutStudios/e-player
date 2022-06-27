@@ -98,7 +98,7 @@ export class EPlayer implements RecipleScript {
 
     public addPlayingCollector(message: Message, track: Track, queue: Queue<EPlayerMetadata>) {
         const collector = message.createMessageComponentCollector({
-            filter: (c) => c.customId === 'player-pause-toggle' || c.customId === 'player-skip' || c.customId === 'player-stop'
+            filter: (c) => ['player-pause-toggle', 'player-previous', 'player-skip', 'player-stop'].includes(c.customId)
         });
 
         collector.on('collect', async (c) => {

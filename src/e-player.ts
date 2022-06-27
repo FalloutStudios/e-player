@@ -131,6 +131,15 @@ export class EPlayer implements RecipleScript {
 
                     c.editReply({ embeds: [this.getMessageEmbed(pause == 'PAUSED' ? 'pause' : 'resume', true, track.title, c.user.tag, c.user.id)] }).catch(() => {});
                     break;
+                case 'player-previous':
+                    const errPrev = await queue.back().catch(() => true);
+                    if (errPrev) {
+                        c.editReply({ embeds: [this.getMessageEmbed('error')] }).catch(() => {});
+                        break;
+                    }
+
+                    c.editReply({ embeds: [this.getMessageEmbed('previous', c.user.tag, c.user.id)] });
+                    break;
                 case 'player-skip':
                     const skip = queue.skip();
 
@@ -309,7 +318,7 @@ export class EPlayer implements RecipleScript {
             repeat: 'description:<@{2}> set loop mode to `{0}`',
             removeTrack: `description:<@{2}> removed **{0}** from queue`,
             shuffle: `description:<@{1}> shuffled the queue`,
-            previous: `description:<@{0}> played the previous track`,
+            previous: `description:<@{1}> played the previous track`,
             stop: `description:<@{1}> stopped the player`
         };
     }
@@ -321,6 +330,11 @@ export class EPlayer implements RecipleScript {
                     .setCustomId('player-pause-toggle')
                     .setLabel('Pause/Resume')
                     .setStyle('PRIMARY')
+                    .setDisabled(disabled),
+                new MessageButton()
+                    .setCustomId('player-previous')
+                    .setLabel('Previous')
+                    .setStyle('SECONDARY')
                     .setDisabled(disabled),
                 new MessageButton()
                     .setCustomId('player-skip')

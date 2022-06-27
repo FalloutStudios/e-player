@@ -17,9 +17,9 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 await interaction.deferReply();
-                await queue.back();
+                const err = await queue.back().catch(() => true);
 
-                interaction.editReply({ embeds: [Player.getMessageEmbed('previous', true, member.user.tag, member.user.id)] });
+                interaction.editReply({ embeds: [Player.getMessageEmbed(err ? 'noTracks' : 'previous', !!err, member.user.tag, member.user.id)] });
             }),
         new MessageCommandBuilder()
             .setName('previous')
@@ -34,9 +34,9 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 const reply = await message.reply({ embeds: [Player.getMessageEmbed('loading')] });
-                await queue.back();
+                const err = await queue.back().catch(() => true);
 
-                reply.edit({ embeds: [Player.getMessageEmbed('previous', true, member.user.tag, member.user.id)] });
+                reply.edit({ embeds: [Player.getMessageEmbed(err ? 'noTracks' : 'previous', !!err, member.user.tag, member.user.id)] });
             })
     ];
 }

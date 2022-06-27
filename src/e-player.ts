@@ -310,6 +310,7 @@ export class EPlayer implements RecipleScript {
             isRequired: 'description:\`{0}\` is required',
             error: 'Error occurred',
             noQueue: 'No queue available',
+            noTracks: 'No tracks left',
             clear: 'description:<@{2}> cleared `{0} track(s)`',
             skip: 'description:<@{2}> skipped **{0}**',
             move: 'description:<@{2}> moved **{0}**',

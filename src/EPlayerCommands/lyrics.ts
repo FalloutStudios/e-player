@@ -52,15 +52,15 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const member = interaction.member;
                 const guild = interaction.guild;
                 const search = interaction.options.getString('search') ?? undefined;
+                if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
+
+                const queue = Player.player.getQueue(guild);
+                if (!queue || queue.destroyed) return interaction.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
 
                 await interaction.reply({ embeds: [Player.getMessageEmbed('loading', true)] });
                 const message = await interaction.fetchReply() as Message;
 
                 if (search) return searchLyrics(search, message);
-                if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
-
-                const queue = Player.player.getQueue(guild);
-                if (!queue || queue.destroyed) return interaction.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
 
                 const nowPlaying = queue.nowPlaying();
                 return searchLyrics(nowPlaying.title, message);
@@ -76,14 +76,13 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const member = message.member;
                 const guild = message.guild;
                 const search = command.command.args.join(' ') || undefined;
-
-                const reply = await message.reply({ embeds: [Player.getMessageEmbed('loading', true)] });
-
-                if (search) return searchLyrics(search, reply);
                 if (!guild || !member) return message.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
 
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
+
+                const reply = await message.reply({ embeds: [Player.getMessageEmbed('loading', true)] });
+                if (search) return searchLyrics(search, reply);
 
                 const nowPlaying = queue.nowPlaying();
                 return searchLyrics(nowPlaying.title, reply);

@@ -320,7 +320,7 @@ export class EPlayer implements RecipleScript {
             repeat: 'description:<@{2}> set loop mode to `{0}`',
             removeTrack: `description:<@{2}> removed **{0}** from queue`,
             shuffle: `description:<@{1}> shuffled the queue`,
-            previous: `description:<@{1}> played the previous track`,
+            previous: `description:<@{1}> playing previous track`,
             stop: `description:<@{1}> stopped the player`
         };
     }

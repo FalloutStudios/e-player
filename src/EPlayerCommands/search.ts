@@ -5,6 +5,8 @@ import { EPlayer } from '../e-player';
 
 export default (Player: EPlayer): recipleCommandBuilders[] => {
     const search = async (query: string, requestedBy: User): Promise<MessageEmbed> => {
+        query = query.replace(/(?:\\(.))/, '$1');
+
         const results = await Player.player.search(query, {
             requestedBy,
             searchEngine: QueryType.AUTO
@@ -17,7 +19,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
         const embed = new MessageEmbed().setColor(Player.getMessage('embedColor') as ColorResolvable);
 
         embed.setAuthor({ name: results.playlist ? `Playlist` : `Tracks`, iconURL: requestedBy.client.user?.displayAvatarURL() });
-        embed.setFooter({ text: `Result${!results.playlist ? 's' : ''} for "${query.slice(0, 50)}"`.replace(/(?:\\(.))/, '$1'), iconURL: requestedBy.displayAvatarURL() });
+        embed.setFooter({ text: `Result${!results.playlist ? 's' : ''} for "${query.slice(0, 50)}"`, iconURL: requestedBy.displayAvatarURL() });
 
         if (results.playlist) {
             embed.setTitle(results.playlist.title);

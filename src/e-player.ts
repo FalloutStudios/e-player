@@ -9,9 +9,12 @@ import { existsSync, mkdirSync, readdirSync } from 'fs';
 
 export interface EPlayerConfig {
     ignoredCommands: string[];
+    largeThumbnailPlayCommand: boolean;
+    destroyQueueOnEmpty: boolean;
     nowPlayingMessage: {
         enabled: boolean;
         addButtons: boolean;
+        largeThumbnail: boolean;
         deletedSentPlayedMessage: boolean;
     };
     commandDescriptions: {
@@ -55,7 +58,8 @@ export class EPlayer implements RecipleScript {
         this.player.on('connectionError', (queue, error) => this.connectionError(queue as Queue<EPlayerMetadata>, error));
         this.player.on('error', (queue, error) => this.connectionError(queue as Queue<EPlayerMetadata>, error));
         this.player.on('debug', (queue, message) => this.logger.debug(`${queue.id}: ${message}`))
-        this.player.on('trackStart', (queue, track) => this.nowPlayingMessage(queue as Queue<EPlayerMetadata>, track))
+        this.player.on('trackStart', (queue, track) => this.nowPlayingMessage(queue as Queue<EPlayerMetadata>, track));
+        this.player.on('queueEnd', queue => (this.config.destroyQueueOnEmpty ? queue.destroy() : void 0));
 
         return true;
     }
@@ -72,9 +76,14 @@ export class EPlayer implements RecipleScript {
 
         embed.setAuthor({ name: `Now playing`, iconURL: this.client.user?.displayAvatarURL() });
         embed.setFooter({ text: `Requested by ${track.requestedBy.tag}`, iconURL: track.requestedBy.displayAvatarURL() });
-        embed.setThumbnail(track.thumbnail);
         embed.setTitle(track.title);
         embed.setURL(track.url);
+
+        if (!this.config.nowPlayingMessage.largeThumbnail) {
+            embed.setThumbnail(track.thumbnail);
+        } else {
+            embed.setImage(track.thumbnail);
+        }
 
         const message = await queue.metadata.textChannel.send({ embeds: [embed], components: [EPlayer.playerButtons()] }).catch(() => {});
         if (!message) return;
@@ -251,10 +260,13 @@ export class EPlayer implements RecipleScript {
         const configPath = path.join(process.cwd(), 'config/EPlayer/config.yml');
         const defaultConfig: EPlayerConfig = {
             ignoredCommands: [],
+            largeThumbnailPlayCommand: true,
+            destroyQueueOnEmpty: true,
             nowPlayingMessage: {
                 enabled: true,
                 addButtons: true,
-                deletedSentPlayedMessage: true
+                largeThumbnail: false,
+                deletedSentPlayedMessage: false
             },
             commandDescriptions: this.getDefaultCommandDescriptions(),
             settings: {
@@ -309,6 +321,7 @@ export class EPlayer implements RecipleScript {
             unknownError: 'Unknown error occurred',
             trackNotFound: 'Track not found',
             isRequired: 'description:\`{0}\` is required',
+            invalid: 'description:Invalid **{0}** value',
             error: 'Error occurred',
             noQueue: 'No queue available',
             noTracks: 'No tracks left',

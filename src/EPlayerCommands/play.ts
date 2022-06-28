@@ -32,25 +32,35 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             queue.addTracks(search.playlist.tracks);
 
             embed.setTitle(search.playlist.title);
-            embed.setThumbnail(search.playlist.thumbnail);
             embed.setURL(search.playlist.url);
             embed.setDescription(search.playlist.description ?? ' ');
             embed.setAuthor({
                 name: search.playlist.type == 'playlist' ? 'Playlist' : 'Album',
                 iconURL: Player.client.user?.displayAvatarURL()
             });
+
+            if (!Player.config.largeThumbnailPlayCommand) {
+                embed.setThumbnail(search.playlist.thumbnail);
+            } else {
+                embed.setImage(search.playlist.thumbnail);
+            }
         } else {
             const track = search.tracks[0];
             queue.addTrack(track);
 
             embed.setTitle(track.title);
-            embed.setThumbnail(track.thumbnail);
             embed.setURL(track.url);
             embed.setDescription(track.description ?? ' ');
             embed.setAuthor({
                 name: `Track`,
                 iconURL: Player.client.user?.displayAvatarURL()
             });
+
+            if (!Player.config.largeThumbnailPlayCommand) {
+                embed.setThumbnail(track.thumbnail);
+            } else {
+                embed.setImage(track.thumbnail);
+            }
         }
 
         embed.setFooter({

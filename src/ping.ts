@@ -43,12 +43,12 @@ export default new (class implements RecipleScript {
     }
 
     public getEmbed(client: RecipleClient, reply: Message) {
-        const latency = reply.createdTimestamp - Date.now();
+        const latency = Date.now() - reply.createdTimestamp;
         const apiLatency = client.ws.ping;
 
         return new MessageEmbed()
             .setAuthor({ name: 'Pong!', iconURL: client.user?.displayAvatarURL() })
-            .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency < 0 ? 0 : latency, { long: true })}\nAPI Latency: ${ms(apiLatency < 0 ? 0 : apiLatency, { long: true })}\nUptime: ${ms(process.uptime() * 1000, { long: true })}\`\`\``)
+            .setDescription(`\`\`\`bash\nBot Latency: ${ms(latency < 0 ? 0 : latency, { long: true })}\nWS Latency: ${ms(apiLatency < 0 ? 0 : apiLatency, { long: true })}\nUptime: ${ms(process.uptime() * 1000, { long: true })}\`\`\``)
             .setColor(player.getMessage('embedColor') as ColorResolvable);
     }
 })();

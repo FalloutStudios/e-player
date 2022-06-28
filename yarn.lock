@@ -54,10 +54,10 @@
     tslib "^2.3.1"
     ws "^8.4.2"
 
-"@ghextercortes/djs-pagination@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@ghextercortes/djs-pagination/-/djs-pagination-0.0.9.tgz#9cdbeb9191157b1598494a073e07a1a5f5568136"
-  integrity sha512-sygT5AYFwX3Az6kLGNDZ7/pAHwXVb4yap9Hg9bxknoqFejT+83HYpl66YErr2hR2xC4Ds3DnhEe5ek3Ec/pHHQ==
+"@ghextercortes/djs-pagination@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@ghextercortes/djs-pagination/-/djs-pagination-1.0.0.tgz#acc25a83165819566ec1bc43e5dac8558039f39e"
+  integrity sha512-7oMbZPWq6XUN0yVQqLSA+roaOEuxGLTvplakFVxy+LwUhYRL6u455mMH4qQ/TaUgwaXTafE+bvpWKwbAQmVg2A==
 
 "@sapphire/async-queue@^1.3.1":
   version "1.3.1"

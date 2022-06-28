@@ -39,7 +39,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }
         }
 
-        const pagination = new Pagination()
+        return new Pagination()
             .setAuthor(author)
             .setOnDisableAction(OnDisableAction.DISABLE_BUTTONS)
             .setTimer(20000)
@@ -54,10 +54,6 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                         .setFooter({ text: `Page 1`, iconURL: author.displayAvatarURL() })
                 ]
             );
-
-        if (embeds.length > 1) pagination.setButtons(paginationButtons);
-
-        return pagination;
     }
 
     return [

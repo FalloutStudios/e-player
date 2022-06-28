@@ -55,7 +55,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 ]
             );
 
-        if (embeds.length) pagination.setButtons(paginationButtons);
+        if (embeds.length > 1) pagination.setButtons(paginationButtons);
 
         return pagination;
     }

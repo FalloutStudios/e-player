@@ -68,7 +68,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
 
                 message.reply({
                     embeds: [
-                        Player.getMessageEmbed(!!removedTrack ? 'removedTrack' : 'error', !!removedTrack, removedTrack.title, member.user.tag, member.user.id)
+                        Player.getMessageEmbed(!!removedTrack ? 'removeTrack' : 'error', !!removedTrack, removedTrack.title, member.user.tag, member.user.id)
                     ]
                 });
             })

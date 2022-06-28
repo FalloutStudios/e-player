@@ -290,6 +290,7 @@ export class EPlayer implements RecipleScript {
             move: 'Move track to another position.',
             stop: "Stop playing and clear queue.",
             queue: "Show queue tracks",
+            search: "Search tracks."
         };
     }
 

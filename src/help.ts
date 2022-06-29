@@ -18,7 +18,7 @@ export class HelpCommand implements RecipleScript {
                 .setExecute(async command => {
                     const message = command.message;
                     const member = message.member;
-                    const filter = command.options[0].value;
+                    const filter = command.options.getValue('filter') ?? undefined;
                     const embed = this.getCommand(client, filter ?? '') ?? this.getAll(client, filter, member ?? undefined);
 
                     message.reply({ embeds: [embed], failIfNotExists: false });

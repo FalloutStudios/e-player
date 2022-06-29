@@ -85,7 +85,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
 
-                const mode = command.options[0].value!.toUpperCase();
+                const mode = command.options.getValue('mode', true).toUpperCase();
                 const repeat = setLoop(queue, mode);
 
                 message.reply({

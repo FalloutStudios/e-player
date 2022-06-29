@@ -76,8 +76,8 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const queue = Player.player.getQueue(guild);
                 if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
 
-                let trackId = Number(command.options[0].value);
-                let moveAfter = Number(command.options[1].value);
+                let trackId = Number(command.options.getValue('track-id', true));
+                let moveAfter = Number(command.options.getValue('move-after', true));
 
                     trackId = isNumber(trackId) ? trackId : 0;
                     trackId = trackId - 1 < 0 ? 0 : trackId - 1;

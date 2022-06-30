@@ -42,6 +42,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
         return new Pagination()
             .setAuthor(author)
             .setOnDisableAction(OnDisableAction.DISABLE_BUTTONS)
+            .setButtons(paginationButtons)
             .setTimer(20000)
             .addPages(
                 embeds.length

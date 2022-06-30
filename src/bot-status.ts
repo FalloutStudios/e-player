@@ -1,5 +1,6 @@
 import { ActivitiesOptions, PresenceStatusData } from 'discord.js';
 import { Logger } from 'fallout-utility';
+import ms from 'ms';
 import path from 'path';
 import { RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
@@ -7,7 +8,7 @@ import { createConfig } from './_createConfig';
 
 export interface BotStatusConfig {
     shuffleStatus: boolean;
-    changeInterval: number;
+    changeInterval: string|number;
     activities: {
         status: PresenceStatusData;
         activity: ActivitiesOptions;
@@ -54,7 +55,7 @@ export class BotStatus implements RecipleScript {
         this.logger.debug(`Status updated!`);
         this.currentStatus = this.currentStatus >= this.activities.length ? 0 : this.currentStatus + 1;
 
-        if (repeat && this.activities.length) setTimeout(() => this.updateStatus(client, repeat), this.config.changeInterval);
+        if (repeat && this.activities.length) setTimeout(() => this.updateStatus(client, repeat), typeof this.config.changeInterval == 'number' ? this.config.changeInterval : ms(this.config.changeInterval));
     }
 
     public static getConfig(): BotStatusConfig {

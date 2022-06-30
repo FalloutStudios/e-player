@@ -178,7 +178,6 @@ export class EPlayer implements RecipleScript {
         this.logger.debug(`ERROR: Connection Error: ${queue.id}`);
         this.logger.debug(error);
 
-        queue.destroy(true);
         if (channel) channel.send({ embeds: [this.getMessageEmbed('connectionError', false, error.message, error.name)] }).catch(() => {});
     }
 
@@ -311,7 +310,7 @@ export class EPlayer implements RecipleScript {
             embedColor: '#de111e',
             errorEmbedColor: 'RED',
             loading: 'Please wait...',
-            connectionError: 'Bot disconnected due to connection error',
+            connectionError: 'Bot has experienced a connection error',
             noQueryProvided: 'Enter a search query or link',
             notInVoiceChannel: 'Join a voice channel',
             InDifferentVoiceChannel: 'You are not in my current voice channel',

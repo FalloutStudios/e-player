@@ -6,7 +6,7 @@ E player is a simple music bot made with [FalloutStudios/Reciple](https://github
 
 ## Installation
 
-Go to [releases](https://github.com/FalloutStudios/e-player/releases/tag/1.5.2) menu and download the `Source code.zip` and extract the files or clone the project using git:
+Go to [releases](https://github.com/FalloutStudios/e-player/releases/latest) menu and download the `Source code.zip` and extract the files or clone the project using git:
 
 ```bash
 git clone https://github.com/FalloutStudios/e-player.git

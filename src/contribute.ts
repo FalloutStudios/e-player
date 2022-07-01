@@ -3,7 +3,7 @@ import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed } from '
 import player from './e-player';
 
 export class Contribute implements RecipleScript {
-    public versions: string | string[] = ['1.5.x'];
+    public versions: string | string[] = ['1.6.x'];
     public commands?: recipleCommandBuilders[] = [];
     public category: string = '🪄 Miscellaneous';
 

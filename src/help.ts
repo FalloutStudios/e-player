@@ -3,7 +3,7 @@ import { ColorResolvable, GuildMember, MessageEmbed } from 'discord.js';
 import player from './e-player';
 
 export class HelpCommand implements RecipleScript {
-    public versions: string | string[] = ['1.5.x'];
+    public versions: string | string[] = ['1.6.x'];
     public commands: recipleCommandBuilders[] = [];
 
     public async onStart(client: RecipleClient): Promise<boolean> {

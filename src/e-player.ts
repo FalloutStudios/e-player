@@ -34,7 +34,7 @@ export interface EPlayerMetadata {
 export type PlayerCommandModule = (Player: EPlayer) => Awaitable<(recipleCommandBuilders)[]>;
 
 export class EPlayer implements RecipleScript {
-    public versions: string | string[] = ['1.5.x'];
+    public versions: string | string[] = ['1.6.x'];
     public config: EPlayerConfig = EPlayer.getConfig();
     public commands: recipleCommandBuilders[] = [];
     public category: string = '🎶 Music';

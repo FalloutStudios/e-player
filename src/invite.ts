@@ -3,7 +3,7 @@ import { InteractionCommandBuilder, MessageCommandBuilder, RecipleClient, recipl
 import player from './e-player';
 
 export class Invite implements RecipleScript {
-    public versions: string | string[] = ['1.5.x'];
+    public versions: string | string[] = ['1.6.x'];
     public commands: recipleCommandBuilders[] = [];
     public category: string = '🪄 Miscellaneous';
     public message!: { embeds: MessageEmbed[], components: MessageActionRow[] };

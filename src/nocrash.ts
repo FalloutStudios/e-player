@@ -12,7 +12,7 @@ export interface NoCrashConfig {
 }
 
 export class NoCrash implements RecipleScript {
-    public versions: string[] = ['1.5.x'];
+    public versions: string[] = ['1.6.x'];
     public config: NoCrashConfig = NoCrash.getConfig();
     public logger?: Logger;
     public owner?: User;

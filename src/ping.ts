@@ -5,7 +5,7 @@ import { InteractionCommandBuilder, MessageCommandBuilder, RecipleClient, Recipl
 import player from './e-player';
 
 export default new (class implements RecipleScript {
-    public versions: string[] = ['1.5.x'];
+    public versions: string[] = ['1.6.x'];
     public category: string = '🪄 Miscellaneous';
     public commands: (MessageCommandBuilder|InteractionCommandBuilder)[] = [];
 

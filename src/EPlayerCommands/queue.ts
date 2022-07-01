@@ -13,7 +13,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             .addButton(ButtonType.LAST_PAGE, new MessageButton().setCustomId('lastpage').setStyle('SECONDARY').setLabel('Last'));
 
     const getEmbeds = (queue: Queue, author: User): Pagination => {
-        let embedDescription = `Playing: **${queue.nowPlaying().title || 'none'}**\n`;
+        let embedDescription = `Playing: **${queue.nowPlaying()?.title || 'none'}**\n`;
         let embeds: MessageEmbed[] = [];
         let page = 1;
         let id = 0;

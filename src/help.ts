@@ -35,7 +35,7 @@ export class HelpCommand implements RecipleScript {
             .setAuthor({ name: `Commands`, iconURL: client.user?.displayAvatarURL() })
             .setDescription(`**Prefix:** \`${client.config.prefix}\`\n` + (filter ? `**Results for:** \`${filter}\`\n\n` : '\n'));
 
-        for (const script of Object.values(client.modules) as (RecipleScript & { category?: string })[]) {
+        for (const script of Object.values(client.modules.map(s => s.script)) as (RecipleScript & { category?: string })[]) {
             if (!script.category) continue;
 
             let commands = (script.commands?.filter(c => c.builder == 'MESSAGE_COMMAND' && (filter ? c.name.includes(filter) : true)) as MessageCommandBuilder[]) ?? [];

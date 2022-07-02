@@ -76,6 +76,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('queue')
+            .addAliases('q')
             .setExecute(async command => {
                 const message = command.message;
                 const member = message.member;

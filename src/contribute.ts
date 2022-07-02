@@ -11,6 +11,7 @@ export class Contribute implements RecipleScript {
         this.commands = [
             new MessageCommandBuilder()
                 .setName('contribute')
+                .addAliases('github')
                 .setDescription('Contribute to this bot.')
                 .setExecute(async command => command.message.reply(this.getMessage(client))),
             new InteractionCommandBuilder()

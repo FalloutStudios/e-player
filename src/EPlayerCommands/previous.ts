@@ -23,6 +23,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('previous')
+            .addAliases('prev', 'back')
             .setExecute(async command => {
                 const message = command.message;
                 const member = message.member;

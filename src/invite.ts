@@ -18,6 +18,7 @@ export class Invite implements RecipleScript {
                 }),
             new MessageCommandBuilder()
                 .setName('invite')
+                .addAliases('inv')
                 .setDescription('Get bot invite link.')
                 .setExecute(async command => {
                     command.message.reply({ ...this.message });

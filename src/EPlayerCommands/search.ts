@@ -64,6 +64,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('search')
+            .addAliases('s', 'find')
             .addOption(query => query
                 .setName('query')
                 .setDescription('Search query.')

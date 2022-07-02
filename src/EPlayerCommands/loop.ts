@@ -70,6 +70,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('loop')
+            .addAliases('l')
             .addOption(mode => mode
                 .setName('mode')
                 .setDescription('Set loop mode.')

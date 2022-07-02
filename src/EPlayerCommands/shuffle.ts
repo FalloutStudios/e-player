@@ -25,6 +25,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('shuffle')
+            .addAliases('sh', 'rand', 'random')
             .setExecute(async command => {
                 const message = command.message;
                 const member = message.member;

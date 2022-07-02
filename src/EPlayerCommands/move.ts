@@ -54,6 +54,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('move')
+            .addAliases('mv')
             .setValidateOptions(true)
             .addOption(trackId => trackId
                 .setName('track-id')

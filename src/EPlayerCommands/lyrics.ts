@@ -67,6 +67,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('lyrics')
+            .addAliases('lr')
             .addOption(search => search
                 .setName('search')
                 .setDescription('Search lyrics')

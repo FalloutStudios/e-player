@@ -10,6 +10,7 @@ export class HelpCommand implements RecipleScript {
         this.commands = [
             new MessageCommandBuilder()
                 .setName('help')
+                .addAliases('h')
                 .setDescription('Show message commands')
                 .addOption(filter => filter
                     .setName('filter')
@@ -58,13 +59,13 @@ export class HelpCommand implements RecipleScript {
     }
 
     public getCommand(client: RecipleClient, name: string): MessageEmbed|void {
-        const command = client.commands.MESSAGE_COMMANDS[name];
+        const command = client.commands.MESSAGE_COMMANDS[name] ?? Object.values(client.commands.MESSAGE_COMMANDS).find(c => c.aliases.includes(name));
         if (!command) return;
 
         const embed = new MessageEmbed()
             .setColor(player.getMessage('embedColor') as ColorResolvable)
             .setAuthor({ name: `Command Info`, iconURL: client.user?.displayAvatarURL() })
-            .setDescription(`**Command:** \`${command.name}\`\n**Description:**\n\`\`\`\n${command.description}\n\`\`\`\n`);
+            .setDescription(`**Command:** \`${command.name}\`\n**Description:**\n\`\`\`\n${command.description}\n\`\`\`\n**Aliases:**\n\`${command.aliases.join('` `') || 'None'}\``);
 
         for (const option of command.options) {
             embed.addField(`**${option.name}** \` ${option.required ? 'REQUIRED' : 'OPTIONAL'} \``, `${option.description}`, true);

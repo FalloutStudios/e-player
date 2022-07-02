@@ -43,6 +43,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('remove')
+            .addAliases('rm')
             .setValidateOptions(true)
             .addOption(skipTo => skipTo
                 .setName('track-id')

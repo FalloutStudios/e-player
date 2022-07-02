@@ -13,6 +13,7 @@ export default new (class implements RecipleScript {
         this.commands = [
             new MessageCommandBuilder()
                 .setName('ping')
+                .addAliases('pong')
                 .setDescription('Pong!')
                 .setExecute(async command => {
                     const message = command.message;

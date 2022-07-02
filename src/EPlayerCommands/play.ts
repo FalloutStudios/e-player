@@ -106,6 +106,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('play')
+            .addAliases('p', 'add')
             .addOption(query => query
                 .setName('query')
                 .setDescription('Media to play')

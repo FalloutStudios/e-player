@@ -45,6 +45,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('skip')
+            .addAliases('next')
             .setValidateOptions(true)
             .addOption(skipTo => skipTo
                 .setName('skip-to')

@@ -46,6 +46,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
             }),
         new MessageCommandBuilder()
             .setName('now-playing')
+            .addAliases('np', 'now')
             .setExecute(async command => {
                 const message = command.message;
                 const member = message.member;

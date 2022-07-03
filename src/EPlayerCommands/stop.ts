@@ -17,7 +17,6 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 queue.stop();
-                queue.destroy(true);
                 interaction.reply({ embeds: [Player.getMessageEmbed('stop', true, member.user.tag, member.user.id)] });
             }),
         new MessageCommandBuilder()

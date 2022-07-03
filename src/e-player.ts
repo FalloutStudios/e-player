@@ -152,7 +152,6 @@ export class EPlayer implements RecipleScript {
                     break;
                 case 'player-stop':
                     queue.stop();
-                    queue.destroy(true);
                     c.editReply({ embeds: [this.getMessageEmbed('stop', true, c.user.tag, c.user.id)] }).catch(() => {});
             }
         });

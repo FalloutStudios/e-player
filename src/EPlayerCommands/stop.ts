@@ -16,6 +16,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 if (!queue || queue.destroyed) return interaction.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
                 if (member.voice.channelId !== guild.me?.voice.channelId) return interaction.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
+                queue.stop();
                 queue.destroy(true);
                 interaction.reply({ embeds: [Player.getMessageEmbed('stop', true, member.user.tag, member.user.id)] });
             }),
@@ -31,6 +32,7 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
                 if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
+                queue.stop();
                 queue.destroy(true);
                 message.reply({ embeds: [Player.getMessageEmbed('stop', true, member.user.tag, member.user.id)] });
             })

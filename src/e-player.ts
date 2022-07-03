@@ -142,12 +142,8 @@ export class EPlayer implements RecipleScript {
                     break;
                 case 'player-previous':
                     const errPrev = await queue.back().catch(() => true);
-                    if (errPrev) {
-                        c.editReply({ embeds: [this.getMessageEmbed('error')] }).catch(() => {});
-                        break;
-                    }
 
-                    c.editReply({ embeds: [this.getMessageEmbed('previous', true, c.user.tag, c.user.id)] });
+                    c.editReply({ embeds: [this.getMessageEmbed(errPrev ? 'noTracks' : 'previous', !errPrev, c.user.tag, c.user.id)] });
                     break;
                 case 'player-skip':
                     const skip = queue.skip();
@@ -155,6 +151,7 @@ export class EPlayer implements RecipleScript {
                     c.editReply({ embeds: [this.getMessageEmbed(skip ? 'skip' : 'error', skip, track.title, c.user.tag, c.user.id)] }).catch(() => {});
                     break;
                 case 'player-stop':
+                    queue.stop();
                     queue.destroy(true);
                     c.editReply({ embeds: [this.getMessageEmbed('stop', true, c.user.tag, c.user.id)] }).catch(() => {});
             }

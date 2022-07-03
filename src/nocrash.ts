@@ -1,4 +1,4 @@
-import { RecipleClient, RecipleScript } from 'reciple';
+import { MessageCommandBuilder, RecipleClient, recipleCommandBuilders, RecipleScript } from 'reciple';
 import { Logger } from 'fallout-utility';
 import { User, MessageEmbed } from 'discord.js';
 import path from 'path';
@@ -14,9 +14,41 @@ export interface NoCrashConfig {
 export class NoCrash implements RecipleScript {
     public versions: string[] = ['1.6.x'];
     public config: NoCrashConfig = NoCrash.getConfig();
+    public commands: recipleCommandBuilders[] = [];
     public logger?: Logger;
     public owner?: User;
-    public onStart() {
+    protected preventedCrashes: number = 0;
+    protected recentPreventedCrash: any;
+
+    public onStart(client: RecipleClient) {
+        this.commands = [
+            new MessageCommandBuilder()
+                .setName('crash-reports')
+                .setDescription('Show crash reports info.')
+                .setExecute(async command => {
+                    const message = command.message;
+
+                    if (message.author.id !== this.owner?.id) {
+                        return message.reply('You do not have permissions to execute this command.');
+                    }
+
+                    const err = this.recentPreventedCrash?.stack
+                        ? this.recentPreventedCrash.stack
+                        : `${this.recentPreventedCrash?.toString()}`;
+
+                    message.reply({
+                        embeds: [
+                            new MessageEmbed()
+                                .setAuthor({ name: `Crash Reports`,iconURL: client.user?.displayAvatarURL() })
+                                .setDescription(' ')
+                                .addField(`Config`, `\`\`\`json\n${JSON.stringify(this.config, null, 2)}\`\`\``)
+                                .addField(`Recent Crash Report`, `\`\`\`js\n${this.recentPreventedCrash ? err : 'None'}\n\`\`\``)
+                                .setFooter({ text: `Prevented Crashes: ${this.preventedCrashes || 'None'}` })
+                        ]
+                    });
+                })
+        ];
+
         return true;
     }
 
@@ -51,6 +83,9 @@ export class NoCrash implements RecipleScript {
     public async reportCrash(message: any) {
         this.logger?.error('Crash Detected! Ignore this message if it does not appear to be fatal.');
         this.logger?.error(message);
+
+        this.preventedCrashes++;
+        this.recentPreventedCrash = message;
 
         if (!this.config.reportToOwner || !this.config.ownerId) return;
 

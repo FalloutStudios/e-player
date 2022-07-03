@@ -129,5 +129,7 @@ dist
 # more
 src/test.ts
 modules
-config
 .stignore
+
+# config
+config/EPlayer

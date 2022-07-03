@@ -1,0 +1,19 @@
+changeInterval: 300000
+shuffleStatus: false
+activities:
+  - activity:
+      name: you | e!play
+      type: WATCHING
+    status: online
+  - activity:
+      name: e!help | e!play
+      type: LISTENING
+    status: online
+  - activity:
+      name: you | /play
+      type: WATCHING
+    status: online
+  - activity:
+      name: /help | /play
+      type: LISTENING
+    status: online

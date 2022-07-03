@@ -59,7 +59,7 @@ export class EPlayer implements RecipleScript {
         this.player.on('error', (queue, error) => this.connectionError(queue as Queue<EPlayerMetadata>, error));
         this.player.on('debug', (queue, message) => this.logger.debug(`${queue.id}: ${message}`))
         this.player.on('trackStart', (queue, track) => this.nowPlayingMessage(queue as Queue<EPlayerMetadata>, track));
-        this.player.on('queueEnd', queue => (this.config.destroyQueueOnEmpty ? queue.destroy() : void 0));
+        this.player.on('queueEnd', queue => (this.config.destroyQueueOnEmpty && !queue.destroyed ? queue.stop() : void 0));
 
         return true;
     }

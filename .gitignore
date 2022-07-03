@@ -130,3 +130,4 @@ dist
 src/test.ts
 modules
 config
+.stignore

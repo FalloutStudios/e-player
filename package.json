@@ -8,6 +8,7 @@
         "clean": "node clearmodules.js",
         "build": "npm run clean && npx tsc",
         "test": "npm run build && npx reciple -D -c reciple.test.yml",
+        "postinstall": "yarn build",
         "start": "npx reciple"
     },
     "dependencies": {

@@ -12,7 +12,7 @@
         "start": "npx reciple"
     },
     "dependencies": {
-        "@discordjs/opus": "^0.7.0",
+        "@discordjs/opus": "^0.8.0",
         "@ghextercortes/djs-pagination": "^1.0.0",
         "discord-player": "^5.2.2",
         "discord.js": "^13.8.1",

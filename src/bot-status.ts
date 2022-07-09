@@ -16,15 +16,14 @@ export interface BotStatusConfig {
 }
 
 export class BotStatus implements RecipleScript {
-    public versions: string | string[] = ['1.6.x'];
+    public versions: string = '1.7.x';
     public config: BotStatusConfig = BotStatus.getConfig();
     public activities: BotStatusConfig["activities"] = [];
     public currentStatus: number = 0;
     public logger!: Logger;
 
     public onStart(client: RecipleClient): boolean {
-        this.logger = client.logger.cloneLogger();
-        this.logger.defaultPrefix = 'BotStatus';
+        this.logger = client.logger.cloneLogger({ loggerName: 'BotStatus' });
 
         return true;
     }

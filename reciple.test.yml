@@ -58,6 +58,8 @@ fileLogging:
   enabled: true
   # enable debug mode
   debugmode: false
+  # Client logs
+  clientLogs: true
   # stringify logged JSONs
   stringifyLoggedJSON: true
   # log file path
@@ -104,4 +106,4 @@ ignoredFiles: []
 modulesFolder: 'modules'
 
 # Current version
-version: 1.6.2
+version: 1.7.0

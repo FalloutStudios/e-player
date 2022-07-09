@@ -34,7 +34,7 @@ export interface EPlayerMetadata {
 export type PlayerCommandModule = (Player: EPlayer) => Awaitable<(recipleCommandBuilders)[]>;
 
 export class EPlayer implements RecipleScript {
-    public versions: string | string[] = ['1.6.x'];
+    public versions: string = '1.7.x';
     public config: EPlayerConfig = EPlayer.getConfig();
     public commands: recipleCommandBuilders[] = [];
     public category: string = '🎶 Music';
@@ -45,8 +45,7 @@ export class EPlayer implements RecipleScript {
 
     public async onStart(client: RecipleClient): Promise<boolean> {
         this.client = client;
-        this.logger = this.client.logger.cloneLogger();
-        this.logger.defaultPrefix = 'EPlayer';
+        this.logger = this.client.logger.cloneLogger({ loggerName: 'EPlayer' });
         this.player = new Player(this.client, this.config.player);
 
         this.logger.log(`Starting E Player...`);

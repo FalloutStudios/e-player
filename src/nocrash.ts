@@ -12,7 +12,7 @@ export interface NoCrashConfig {
 }
 
 export class NoCrash implements RecipleScript {
-    public versions: string[] = ['1.6.x'];
+    public versions: string = '1.7.x';
     public config: NoCrashConfig = NoCrash.getConfig();
     public commands: recipleCommandBuilders[] = [];
     public logger?: Logger;
@@ -53,8 +53,7 @@ export class NoCrash implements RecipleScript {
     }
 
     public async onLoad(client: RecipleClient) {
-        this.logger = client.logger.cloneLogger();
-        this.logger.defaultPrefix = 'NoCrash';
+        this.logger = client.logger.cloneLogger({ loggerName: 'NoCrash' });
 
         if (this.config.reportToOwner && this.config.ownerId) {
             this.logger.info('Attempting to find owner...');

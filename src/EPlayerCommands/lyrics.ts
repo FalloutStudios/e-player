@@ -1,7 +1,8 @@
+import { EPlayer } from '../e-player';
+
 import { ColorResolvable, Message, MessageEmbed } from 'discord.js';
 import { Client } from 'genius-lyrics';
 import { InteractionCommandBuilder, MessageCommandBuilder, recipleCommandBuilders } from 'reciple';
-import { EPlayer } from '../e-player';
 
 export default (Player: EPlayer): recipleCommandBuilders[] => {
     const genius = new Client();
@@ -54,16 +55,18 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const search = interaction.options.getString('search') ?? undefined;
                 if (!guild || !member) return interaction.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
 
-                const queue = Player.player.getQueue(guild);
-                if (!queue || queue.destroyed) return interaction.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
-
                 await interaction.reply({ embeds: [Player.getMessageEmbed('loading', true)] });
-                const message = await interaction.fetchReply() as Message;
+                const reply = await interaction.fetchReply() as Message;
 
-                if (search) return searchLyrics(search, message);
+                if (search) return searchLyrics(search, reply);
+
+                const queue = Player.player.getQueue(guild);
+                if ((!queue || queue.destroyed) && !search) return reply.edit({ embeds: [Player.getMessageEmbed('noQueue')] });
 
                 const nowPlaying = queue.nowPlaying();
-                return searchLyrics(nowPlaying.title, message);
+                if (!nowPlaying) return reply.edit({ embeds: [Player.getMessageEmbed('noQueue')] });
+
+                searchLyrics(nowPlaying?.title, reply);
             }),
         new MessageCommandBuilder()
             .setName('lyrics')
@@ -79,14 +82,16 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 const search = command.command.args.join(' ') || undefined;
                 if (!guild || !member) return message.reply({ embeds: [Player.getMessageEmbed('notAMember')] });
 
-                const queue = Player.player.getQueue(guild);
-                if (!queue || queue.destroyed) return message.reply({ embeds: [Player.getMessageEmbed('noQueue')] });
-
                 const reply = await message.reply({ embeds: [Player.getMessageEmbed('loading', true)] });
                 if (search) return searchLyrics(search, reply);
 
+                const queue = Player.player.getQueue(guild);
+                if (!queue || queue.destroyed && !search) return reply.edit({ embeds: [Player.getMessageEmbed('noQueue')] });
+
                 const nowPlaying = queue.nowPlaying();
-                return searchLyrics(nowPlaying.title, reply);
+                if (!nowPlaying) return reply.edit({ embeds: [Player.getMessageEmbed('noQueue')] });
+
+                searchLyrics(nowPlaying?.title, reply);
             })
     ];
 }

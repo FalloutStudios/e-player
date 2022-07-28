@@ -1,6 +1,7 @@
+import { EPlayer } from '../e-player';
+
 import { GuildMember } from 'discord.js';
 import { InteractionCommandBuilder, MessageCommandBuilder, recipleCommandBuilders } from 'reciple';
-import { EPlayer } from '../e-player';
 
 export default (Player: EPlayer): recipleCommandBuilders[] => {
     return [
@@ -32,7 +33,6 @@ export default (Player: EPlayer): recipleCommandBuilders[] => {
                 if (member.voice.channelId !== guild.me?.voice.channelId) return message.reply({ embeds: [Player.getMessageEmbed('InDifferentVoiceChannel')] });
 
                 queue.stop();
-                queue.destroy(true);
                 message.reply({ embeds: [Player.getMessageEmbed('stop', true, member.user.tag, member.user.id)] });
             })
     ];

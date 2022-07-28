@@ -1,11 +1,12 @@
-import { Player, PlayerInitOptions, PlayerOptions, Queue, Track } from 'discord-player';
-import { RecipleClient, recipleCommandBuilders, RecipleScript } from 'reciple';
-import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
-import path from 'path';
-import yml from 'yaml';
 import { createConfig } from './_createConfig';
+
+import { Player, PlayerInitOptions, PlayerOptions, Queue, Track } from 'discord-player';
 import { Awaitable, ColorResolvable, GuildMember, Message, MessageActionRow, MessageButton, MessageEmbed, TextBasedChannel } from 'discord.js';
+import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import { existsSync, mkdirSync, readdirSync } from 'fs';
+import path from 'path';
+import { RecipleClient, recipleCommandBuilders, RecipleScript } from 'reciple';
+import yml from 'yaml';
 
 export interface EPlayerConfig {
     ignoredCommands: string[];
@@ -173,6 +174,7 @@ export class EPlayer implements RecipleScript {
         this.logger.debug(`ERROR: Connection Error: ${queue.id}`);
         this.logger.debug(error);
 
+        if (!queue.destroyed) queue.stop();
         if (channel) channel.send({ embeds: [this.getMessageEmbed('connectionError', false, error.message, error.name)] }).catch(() => {});
     }
 

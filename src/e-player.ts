@@ -4,7 +4,7 @@ import { Player, PlayerOptions } from 'discord-music-player';
 import { EmbedBuilder } from 'discord.js';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import path from 'path';
-import { RecipleClient, RecipleCommandBuilder, RecipleScript } from 'reciple';
+import { CommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
 
 export interface EPlayerConfig {
@@ -18,7 +18,7 @@ export interface EPlayerConfig {
 export class EPlayer implements RecipleScript {
     public versions: string = '^4.0.0';
     public config: EPlayerConfig = EPlayer.getConfig();
-    public commands: RecipleCommandBuilder[] = [];
+    public commands: CommandBuilder[] = [];
     public client!: RecipleClient<boolean>;
     public logger!: Logger;
     public player!: Player;

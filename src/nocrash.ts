@@ -3,7 +3,7 @@ import { createConfig } from './_createConfig';
 import { EmbedBuilder, User } from 'discord.js';
 import { Logger } from 'fallout-utility';
 import path from 'path';
-import { MessageCommandBuilder, RecipleClient, RecipleCommandBuilder, RecipleScript } from 'reciple';
+import { CommandBuilder, MessageCommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
 
 export interface NoCrashConfig {
@@ -15,7 +15,7 @@ export interface NoCrashConfig {
 export class NoCrash implements RecipleScript {
     public versions: string = '^4.0.0';
     public config: NoCrashConfig = NoCrash.getConfig();
-    public commands: RecipleCommandBuilder[] = [];
+    public commands: CommandBuilder[] = [];
     public logger?: Logger;
     public owner?: User;
     protected preventedCrashes: number = 0;

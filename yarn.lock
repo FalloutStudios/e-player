@@ -1092,10 +1092,10 @@ readable-web-to-node-stream@^3.0.2:
   dependencies:
     readable-stream "^3.6.0"
 
-reciple@^4.0.0-pre.2:
-  version "4.0.0-pre.2"
-  resolved "https://registry.yarnpkg.com/reciple/-/reciple-4.0.0-pre.2.tgz#146f50fd0955ce183e018ab5032110714c9300c8"
-  integrity sha512-qfDuIqZxXZDWpY7VnQJ+5dA+zL56JL3Yu9q/Fzm1ChfCT6Zdvx+DaPFpHhBQVZYlVYuCjcBegZqj6YOkGfinuQ==
+reciple@^4.0.0-pre.3:
+  version "4.0.0-pre.3"
+  resolved "https://registry.yarnpkg.com/reciple/-/reciple-4.0.0-pre.3.tgz#3e29e0ac9146488018f5a9774298109ba36182a9"
+  integrity sha512-0/DSEaMhPmlVN9698B89Q2NNNafBoJjKUqd6rLdgvCm0fqzyQVK9zTg9EpLyjMZ55UwLKTzGDqphSnzGTFQsyA==
   dependencies:
     chalk "4.1.2"
     commander "^9.4.0"

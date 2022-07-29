@@ -1,17 +1,24 @@
 import { createConfig } from './_createConfig';
 
 import { Player, PlayerOptions } from 'discord-music-player';
-import { Awaitable, EmbedBuilder } from 'discord.js';
+import { Awaitable, EmbedBuilder, PermissionResolvable } from 'discord.js';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import { mkdirSync, readdirSync } from 'fs';
+import ms from 'ms';
 import path from 'path';
-import { CommandBuilder, RecipleClient, RecipleScript } from 'reciple';
+import { CommandBuilder, CommandBuilderType, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
 
 export interface EPlayerConfig {
     playerOptions: PlayerOptions;
-    commandDescriptions: {
-        [commandName: string]: string;
+    commandOptions: {
+        [commandName: string]: {
+            requiredMemberPermissions?: PermissionResolvable[];
+            requiredBotPermissions?: PermissionResolvable[];
+            messageCommandAliases?: string[];
+            cooldown?: number|string;
+            description: string;
+        }
     };
     messages: ReturnType<typeof EPlayer["getDefaultMessages"]>;
 }
@@ -39,6 +46,24 @@ export class EPlayer implements RecipleScript {
     }
 
     public onLoad(): void {
+
+        this.commands = this.commands.map(command => {
+            const commandOptions = this.config.commandOptions[command.name];
+
+            if (commandOptions.cooldown) command.setCooldown(typeof commandOptions.cooldown == 'string' ? ms(commandOptions.cooldown) : commandOptions.cooldown);
+            if (commandOptions.description) command.setDescription(commandOptions.description);
+            if (commandOptions.requiredBotPermissions) command.setRequiredBotPermissions(...commandOptions.requiredBotPermissions);
+            if (commandOptions.requiredMemberPermissions) command.setRequiredMemberPermissions(...commandOptions.requiredMemberPermissions);
+
+            if(command.builder == CommandBuilderType.MessageCommand) {
+                if (commandOptions.messageCommandAliases) command.aliases = commandOptions.messageCommandAliases;
+
+                command.setValidateOptions(true);
+            }
+
+            return command;
+        });
+
         this.logger.log(`Loaded E Player!`);
     }
 
@@ -126,10 +151,16 @@ export class EPlayer implements RecipleScript {
                 timeout: 10000,
                 volume: 100
             },
-            commandDescriptions: {
-                'play': 'Play a song'
-            },
+            commandOptions: this.getDefaultCommandOptions(),
             messages: this.getDefaultMessages()
+        };
+    }
+
+    public static getDefaultCommandOptions(): EPlayerConfig["commandOptions"] {
+        return {
+            play: {
+                description: 'Search for a song to play.'
+            }
         };
     }
 

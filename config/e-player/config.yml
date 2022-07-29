@@ -6,6 +6,9 @@ playerOptions:
   quality: high
   timeout: 10000
   volume: 100
-commandDescriptions:
-  play: Play a song
-messages: {}
+commandOptions:
+  play:
+    description: Search for a song to play.
+messages:
+  embedColor: "#de111e"
+  errorEmbedColor: "#de111e"

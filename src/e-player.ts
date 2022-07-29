@@ -1,8 +1,9 @@
 import { createConfig } from './_createConfig';
 
 import { Player, PlayerOptions } from 'discord-music-player';
-import { EmbedBuilder } from 'discord.js';
+import { Awaitable, EmbedBuilder } from 'discord.js';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
+import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
 import { CommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
@@ -15,10 +16,13 @@ export interface EPlayerConfig {
     messages: ReturnType<typeof EPlayer["getDefaultMessages"]>;
 }
 
+export type EPlayerCommandModule = (Player: EPlayer) => Awaitable<(CommandBuilder)[]>;
+
 export class EPlayer implements RecipleScript {
     public versions: string = '^4.0.0';
     public config: EPlayerConfig = EPlayer.getConfig();
     public commands: CommandBuilder[] = [];
+    public commandModules: EPlayerCommandModule[] = [];
     public client!: RecipleClient<boolean>;
     public logger!: Logger;
     public player!: Player;
@@ -29,12 +33,44 @@ export class EPlayer implements RecipleScript {
         this.player = new Player(this.client, this.config.playerOptions);
 
         this.logger.log(`Starting E Player...`);
+        await this.loadCommands();
 
         return true;
     }
 
     public onLoad(): void {
         this.logger.log(`Loaded E Player!`);
+    }
+
+    public async loadCommands(): Promise<EPlayerCommandModule[]> {
+        const commandModulesPath = path.join(__dirname, './EPlayerCommands');
+
+        mkdirSync(commandModulesPath, { recursive: true });
+        const commandFiles = readdirSync(commandModulesPath)
+            .filter(f => f.endsWith('.js'))
+            .map(f => path.join(commandModulesPath, f));
+
+        this.logger.log(`${commandFiles.length} Player command module(s) found`);
+
+        for (const commandFile of commandFiles) {
+            this.logger.debug(`Loading ${commandFile}`);
+
+            try {
+                const commandInit = require(commandFile);
+                const command: EPlayerCommandModule|undefined = typeof commandInit?.default == 'undefined' ? commandInit : commandInit.default;
+                if (typeof command == 'undefined') throw new Error('Command is undefined');
+
+                this.commands.push(...(await command(this)));
+                this.commandModules.push(command);
+
+                this.logger.log(`Loaded ${commandFile}`);
+            } catch (err) {
+                this.logger.error(`Unable to load ${commandFile}:`);
+                this.logger.error(err);
+            }
+        }
+
+        return this.commandModules;
     }
 
     public getMessageEmbed(messageKey: keyof EPlayerConfig["messages"], positive: boolean = false, ...placeholders: string[]): EmbedBuilder {

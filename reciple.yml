@@ -1,45 +1,52 @@
 # Your bot token here
-# To use env variable as a token just do it like this env:env:TOKEN_ENV
+# To use env variable as a token just do it like this env:TOKEN_ENV
 token: env:TOKEN
-
-# Message command prefix
-prefix: 'e!'
-
 
 # Commands options
 commands:
+  # message command options
   messageCommand:
     # enable message commands
     enabled: true
+    # command prefix
+    prefix: 'e!'
     # reply when an error occured
-    replyOnError: true
-    # Allow executing commands via aliases
+    replyOnError: false
+    # enable the use of command cooldowns
+    enableCooldown: true
+    # allow executing commands via aliases
     allowCommandAlias: true
     # command argument separator
     commandArgumentSeparator: ' '
-  interactionCommand:
+    # overwrite command permissions
+    permissions:
+      # enable overwriten command permissions
+      enabled: false
+      commands:
+        - command: 'example-command'
+          permissions: ['Administrator']
+
+  # Interaction command options
+  slashCommand:
     # enable interaction commands
     enabled: true
     # reply when an error occured
-    replyOnError: true
+    replyOnError: false
+    # enable the use of command cooldowns
+    enableCooldown: true
     # register interaction commands on bot ready
     registerCommands: true
     # set required permissions for interaction commands
     setRequiredPermissions: true
     # register commands to specific guild(s) empty to make it global
     guilds: []
-
-
-# Commands permissions
-permissions:
-  messageCommands:
-    # enable command permissions
-    enabled: true
-    commands: []
-  interactionCommands:
-    # enable command permissions
-    enabled: true
-    commands: []
+    # overwrite command permissions
+    permissions:
+      # enable overwriten command permissions
+      enabled: false
+      commands:
+        - command: 'example-command'
+          permissions: ['Administrator']
 
 
 # Ignored channel IDs
@@ -58,30 +65,34 @@ fileLogging:
   enabled: true
   # enable debug mode
   debugmode: false
-  # Client logs
+  # enable if reciple will use the logger
   clientLogs: true
   # stringify logged JSONs
-  stringifyLoggedJSON: true
+  stringifyLoggedJSON: false
   # log file path
   logFilePath: './logs/latest.log'
 
 # Client options
+# Learn more about client options at https://discord.js.org/#/docs/discord.js/main/typedef/ClientOptions
 client:
-  repliedUser: false
-  allowedMentions:
-    parse: ['users', 'roles']
-  failIfNotExists: false
   intents:
-    - 'GUILDS'
-    - 'GUILD_MEMBERS'
-    - 'GUILD_MESSAGES'
-    - 'GUILD_VOICE_STATES'
+    - 'Guilds'
+    - 'GuildMembers'
+    - 'GuildMessages'
+    - 'MessageContent'
 
-# Bot replies
+# Bot messages
 messages:
-  notEnoughArguments: 'Not enough arguments.'
+  missingArguments: 'Not enough arguments.'
+  invalidArguments: 'Invalid argument(s) given.'
+  insufficientBotPerms:
+    content: 'Insufficient bot permissions.'
+    ephemeral: true
   noPermissions:
     content: 'You do not have permission to use this command.'
+    ephemeral: true
+  cooldown:
+    content: 'You cannot execute this command right now due to the cooldown.'
     ephemeral: true
   error:
     content: 'An error occurred.'
@@ -91,19 +102,22 @@ messages:
 ignoredFiles: []
 
 
-###################################################
-#                                                 #
-#   #####  #####  #    #   ###   #####  ####      #
-#   #   #  #   #  # #  #  #      #      #   #     #
-#   #   #  #####  #  # #  # ###  ###    ####      #
-#   #  #   #   #  #    #  #   #  #      #   #     #
-#   ###    #   #  #    #   ###   #####  #    #    #
-#                                                 #
-###################################################
-## Modifying these values below can cause errors ##
+####################################################
+#                                                  #
+#    #####  #####  #    #   ###   #####  ####      #
+#    #   #  #   #  # #  #  #      #      #   #     #
+#    #   #  #####  #  # #  # ###  ###    ####      #
+#    #  #   #   #  #    #  #   #  #      #   #     #
+#    ###    #   #  #    #   ###   #####  #    #    #
+#                                                  #
+####################################################
+## Modifying the values below could break reciple ##
 
 # Modules folder
 modulesFolder: 'modules'
 
+# Load modules regardless of its supported versions
+disableVersionCheck: false
+
 # Current version
-version: 1.7.0
+version: ^4.0.0

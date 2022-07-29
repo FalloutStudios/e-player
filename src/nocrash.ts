@@ -1,9 +1,10 @@
-import { MessageCommandBuilder, RecipleClient, recipleCommandBuilders, RecipleScript } from 'reciple';
-import { Logger } from 'fallout-utility';
-import { User, MessageEmbed } from 'discord.js';
-import path from 'path';
-import yml from 'yaml';
 import { createConfig } from './_createConfig';
+
+import { EmbedBuilder, User } from 'discord.js';
+import { Logger } from 'fallout-utility';
+import path from 'path';
+import { MessageCommandBuilder, RecipleClient, RecipleCommandBuilder, RecipleScript } from 'reciple';
+import yml from 'yaml';
 
 export interface NoCrashConfig {
     ownerId: string;
@@ -12,9 +13,9 @@ export interface NoCrashConfig {
 }
 
 export class NoCrash implements RecipleScript {
-    public versions: string = '1.7.x';
+    public versions: string = '^4.0.0';
     public config: NoCrashConfig = NoCrash.getConfig();
-    public commands: recipleCommandBuilders[] = [];
+    public commands: RecipleCommandBuilder[] = [];
     public logger?: Logger;
     public owner?: User;
     protected preventedCrashes: number = 0;
@@ -38,11 +39,19 @@ export class NoCrash implements RecipleScript {
 
                     message.reply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setAuthor({ name: `Crash Reports`,iconURL: client.user?.displayAvatarURL() })
                                 .setDescription(' ')
-                                .addField(`Config`, `\`\`\`json\n${JSON.stringify(this.config, null, 2)}\`\`\``)
-                                .addField(`Recent Crash Report`, `\`\`\`js\n${this.recentPreventedCrash ? err : 'None'}\n\`\`\``)
+                                .addFields(
+                                    {
+                                        name: `Config`,
+                                        value: `\`\`\`json\n${JSON.stringify(this.config, null, 2)}\`\`\``
+                                    },
+                                    {
+                                        name: `Recent Crash Report`,
+                                        value: `\`\`\`js\n${this.recentPreventedCrash ? err : 'None'}\n\`\`\``
+                                    }
+                                )
                                 .setFooter({ text: `Prevented Crashes: ${this.preventedCrashes || 'None'}` })
                         ]
                     });
@@ -88,9 +97,9 @@ export class NoCrash implements RecipleScript {
 
         if (!this.config.reportToOwner || !this.config.ownerId) return;
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setAuthor({ name: this.config.preventCrash ? 'Crash Detected!' : 'Uncaught Exception' })
-            .setColor('RED')
+            .setColor('Red')
             .setDescription(`**Message:** ${message.message}\n\`\`\`\n${message.stack}\n\`\`\``)
             .setTimestamp();
 

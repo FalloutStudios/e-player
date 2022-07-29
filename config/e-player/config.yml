@@ -1,0 +1,11 @@
+playerOptions:
+  deafenOnJoin: true
+  leaveOnEmpty: true
+  leaveOnEnd: true
+  leaveOnStop: true
+  quality: high
+  timeout: 10000
+  volume: 100
+commandDescriptions:
+  play: Play a song
+messages: {}

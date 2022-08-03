@@ -1,16 +1,18 @@
-import { createConfig } from './_createConfig';
-
-import { Player, PlayerOptions } from 'discord-music-player';
-import { Awaitable, EmbedBuilder, PermissionResolvable } from 'discord.js';
+import { Awaitable, EmbedBuilder, GuildTextBasedChannel, PermissionResolvable } from 'discord.js';
+import { AnyCommandBuilder, CommandBuilderType, RecipleClient, RecipleScript } from 'reciple';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
+import { Player, PlayerOptions, Queue } from 'discord-player';
+import { createConfig } from './_createConfig';
 import { mkdirSync, readdirSync } from 'fs';
-import ms from 'ms';
+import BaseModule from './_BaseModule';
 import path from 'path';
-import { CommandBuilder, CommandBuilderType, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
+import ms from 'ms';
 
 export interface EPlayerConfig {
     playerOptions: PlayerOptions;
+    bigSearchResultThumbnails: boolean;
+    bigNowPlayingThumbnails: boolean;
     commandOptions: {
         [commandName: string]: {
             requiredMemberPermissions?: PermissionResolvable[];
@@ -23,12 +25,14 @@ export interface EPlayerConfig {
     messages: ReturnType<typeof EPlayer["getDefaultMessages"]>;
 }
 
-export type EPlayerCommandModule = (Player: EPlayer) => Awaitable<(CommandBuilder)[]>;
+export interface EPlayerMetadata {
+    textChannel?: GuildTextBasedChannel;
+}
 
-export class EPlayer implements RecipleScript {
-    public versions: string = '^4.0.0';
+export type EPlayerCommandModule = (Player: EPlayer) => Awaitable<(AnyCommandBuilder)[]>;
+
+export class EPlayer extends BaseModule implements RecipleScript {
     public config: EPlayerConfig = EPlayer.getConfig();
-    public commands: CommandBuilder[] = [];
     public commandModules: EPlayerCommandModule[] = [];
     public client!: RecipleClient<boolean>;
     public logger!: Logger;
@@ -41,6 +45,9 @@ export class EPlayer implements RecipleScript {
 
         this.logger.log(`Starting E Player...`);
         await this.loadCommands();
+
+        this.player.on('debug', (_queue, message) => this.logger.debug(message));
+        this.player.on('error', (queue, err) => this.connectionError(queue as Queue<EPlayerMetadata>, err))
 
         return true;
     }
@@ -55,7 +62,7 @@ export class EPlayer implements RecipleScript {
             if (commandOptions.requiredBotPermissions) command.setRequiredBotPermissions(...commandOptions.requiredBotPermissions);
             if (commandOptions.requiredMemberPermissions) command.setRequiredMemberPermissions(...commandOptions.requiredMemberPermissions);
 
-            if(command.builder == CommandBuilderType.MessageCommand) {
+            if(command.type == CommandBuilderType.MessageCommand) {
                 if (commandOptions.messageCommandAliases) command.aliases = commandOptions.messageCommandAliases;
 
                 command.setValidateOptions(true);
@@ -65,6 +72,21 @@ export class EPlayer implements RecipleScript {
         });
 
         this.logger.log(`Loaded E Player!`);
+    }
+
+    public pauseToggle(queue: Queue) {
+        if (queue.connection.paused) {
+            return queue.setPaused(false) ? 'PAUSED' : 'ERROR';
+        } else {
+            return queue.setPaused(true) ? 'RESUMED' : 'ERROR';
+        }
+    }
+
+    public async connectionError(queue: Queue<EPlayerMetadata>, err: Error): Promise<void> {
+        const textChannel = queue.metadata?.textChannel;
+
+        if (!queue.destroyed && queue.tracks.length) queue.skip();
+        if (textChannel) textChannel.send({ embeds: [this.getMessageEmbed('botInternalError', false, String(err))] });
     }
 
     public async loadCommands(): Promise<EPlayerCommandModule[]> {
@@ -142,14 +164,17 @@ export class EPlayer implements RecipleScript {
 
     public static getDefaultConfig(): EPlayerConfig {
         return {
+            bigNowPlayingThumbnails: false,
+            bigSearchResultThumbnails: true,
             playerOptions: {
-                deafenOnJoin: true,
+                autoSelfDeaf: true,
+                initialVolume: 100,
                 leaveOnEmpty: true,
-                leaveOnEnd: true,
                 leaveOnStop: true,
-                quality: 'high',
-                timeout: 10000,
-                volume: 100
+                leaveOnEnd: true,
+                leaveOnEmptyCooldown: 60 * 1000,
+                spotifyBridge: true,
+                ytdlOptions: {}
             },
             commandOptions: this.getDefaultCommandOptions(),
             messages: this.getDefaultMessages()
@@ -168,6 +193,20 @@ export class EPlayer implements RecipleScript {
         return {
             embedColor: '#de111e',
             errorEmbedColor: '#de111e',
+            loading: 'Loading...',
+            noSearchQueryProvided: 'Enter a search query.',
+            noResultsFound: 'No results found.',
+            notInGuild: 'You are not in a guild.',
+            notInVoiceChannel: 'You are not in a voice channel.',
+            notInBotVoiceChannel: 'You are not in the voice channel I\'m in.',
+            cantConnectToVoiceChannel: 'description:Can\'t connect to {0}',
+            botInternalError: `An error occurred`,
+            commandCooldown: `description:Wait for \`{0}\` cooldown.`,
+            commandError: `An error occurred while executing this command.`,
+            commandInvalidArguments: `description:Invalid arguments given to option(s): {0}`,
+            commandMissingArguments: `description:Missing required command arguments: {0}`,
+            commandNoBotPermissions: `I don't have enough permissions to execute this command.`,
+            commandNoMemberPermissions: `You do not have enough permissions to execute this command.`
         };
     }
 }

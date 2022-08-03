@@ -80,6 +80,7 @@ client:
     - 'GuildMembers'
     - 'GuildMessages'
     - 'MessageContent'
+    - 'GuildVoiceStates'
 
 # Bot messages
 messages:
@@ -120,4 +121,4 @@ modulesFolder: 'modules'
 disableVersionCheck: false
 
 # Current version
-version: ^4.0.0
+version: ^5.0.0

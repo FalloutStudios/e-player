@@ -3,8 +3,9 @@ import { createConfig } from './_createConfig';
 import { EmbedBuilder, User } from 'discord.js';
 import { Logger } from 'fallout-utility';
 import path from 'path';
-import { CommandBuilder, MessageCommandBuilder, RecipleClient, RecipleScript } from 'reciple';
+import { MessageCommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
+import BaseModule from './_BaseModule';
 
 export interface NoCrashConfig {
     ownerId: string;
@@ -12,10 +13,8 @@ export interface NoCrashConfig {
     preventCrash: boolean;
 }
 
-export class NoCrash implements RecipleScript {
-    public versions: string = '^4.0.0';
+export class NoCrash extends BaseModule implements RecipleScript {
     public config: NoCrashConfig = NoCrash.getConfig();
-    public commands: CommandBuilder[] = [];
     public logger?: Logger;
     public owner?: User;
     protected preventedCrashes: number = 0;
@@ -30,7 +29,8 @@ export class NoCrash implements RecipleScript {
                     const message = command.message;
 
                     if (message.author.id !== this.owner?.id) {
-                        return message.reply('You do not have permissions to execute this command.');
+                        message.reply('You do not have permissions to execute this command.');
+                        return;
                     }
 
                     const err = this.recentPreventedCrash?.stack

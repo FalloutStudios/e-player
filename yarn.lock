@@ -401,10 +401,10 @@ discord-api-types@^0.36.2, discord-api-types@^0.36.3:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.36.3.tgz#a931b7e57473a5c971d6937fa5f392eb30047579"
   integrity sha512-bz/NDyG0KBo/tY14vSkrwQ/n3HKPf87a0WFW/1M9+tXYK+vp5Z5EksawfCWo2zkAc6o7CClc0eff1Pjrqznlwg==
 
-discord-player@^5.3.0-dev.3:
-  version "5.3.0-dev.3"
-  resolved "https://registry.yarnpkg.com/discord-player/-/discord-player-5.3.0-dev.3.tgz#99f84b39cae9d4919b94c899d2248c19b0de96f2"
-  integrity sha512-rrbEBS4mzCyIGk5S9E5O0XWnC4nub2cmBAFr9pZLH7RWBX4+z2nhAt5VwemgenmW/RJy1rseuZZ75WqJDnrHnw==
+discord-player@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/discord-player/-/discord-player-5.3.0.tgz#26447d6d4d3d816650c787fcd533b9fe9c4c988c"
+  integrity sha512-OskERYrsVqNvyq8tKkp3aV3NMY9dP5BhNeyn5NTTDohVd9eEE8P6rZGvxqORJl1OxXCTBLbiojNgLiFNsAIaow==
   dependencies:
     "@discordjs/voice" "^0.11.0"
     libsodium-wrappers "^0.7.10"
@@ -412,7 +412,7 @@ discord-player@^5.3.0-dev.3:
     spotify-url-info "^3.1.2"
     tiny-typed-emitter "^2.1.0"
     tslib "^2.4.0"
-    youtube-sr "^4.2.0"
+    youtube-sr "^4.3.0"
     ytdl-core "^4.11.0"
 
 discord.js@^14.1.2:
@@ -916,10 +916,10 @@ readable-web-to-node-stream@^3.0.2:
   dependencies:
     readable-stream "^3.6.0"
 
-reciple@^5.0.0-pre.2:
-  version "5.0.0-pre.2"
-  resolved "https://registry.yarnpkg.com/reciple/-/reciple-5.0.0-pre.2.tgz#c03df6eeeba03460b812e3420331d5c56802bcda"
-  integrity sha512-BEp9XN11L0ruh3xe6r/9aNcQlqlEgfojvC35vftWhvgoEvKXDsi2bhnpJv4iTe9unQheTju47GEF556uphKADQ==
+reciple@^5.0.0-pre.3:
+  version "5.0.0-pre.3"
+  resolved "https://registry.yarnpkg.com/reciple/-/reciple-5.0.0-pre.3.tgz#8e2884658706c1f23d0aab2ed97938078021645a"
+  integrity sha512-FqdUyaCAoQq2gNJQSkfrMDBzxWr8EJP4ooWK9C/Sojl2EFTd/opxB+Z+p+o+KLkrwQsQoVh5bDHpQUPzz9hIlA==
   dependencies:
     chalk "4.1.2"
     commander "^9.4.0"
@@ -1159,7 +1159,7 @@ yaml@^2.1.1:
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.1.1.tgz#1e06fb4ca46e60d9da07e4f786ea370ed3c3cfec"
   integrity sha512-o96x3OPo8GjWeSLF+wOAbrPfhFOGY0W00GNaxCDv+9hkcDJEnev1yh8S7pgHF0ik6zc8sQLuL8hjHjJULZp8bw==
 
-youtube-sr@^4.2.0:
+youtube-sr@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/youtube-sr/-/youtube-sr-4.3.0.tgz#6c3ab661b0c2572946d1098451ed7699d7ad4be5"
   integrity sha512-cRMOeJZi/DYIRqru0R9UsBLwkj4tQvekldnCj4MZOT+ijlfesrllbUDXqKuA2RbYA4ByJlFf9wxZ1ndvuCJ5Ow==

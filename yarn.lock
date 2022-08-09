@@ -401,10 +401,10 @@ discord-api-types@^0.36.2, discord-api-types@^0.36.3:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.36.3.tgz#a931b7e57473a5c971d6937fa5f392eb30047579"
   integrity sha512-bz/NDyG0KBo/tY14vSkrwQ/n3HKPf87a0WFW/1M9+tXYK+vp5Z5EksawfCWo2zkAc6o7CClc0eff1Pjrqznlwg==
 
-discord-player@^5.3.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/discord-player/-/discord-player-5.3.0.tgz#26447d6d4d3d816650c787fcd533b9fe9c4c988c"
-  integrity sha512-OskERYrsVqNvyq8tKkp3aV3NMY9dP5BhNeyn5NTTDohVd9eEE8P6rZGvxqORJl1OxXCTBLbiojNgLiFNsAIaow==
+discord-player@^5.3.1:
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/discord-player/-/discord-player-5.3.1.tgz#9bf5fac948ac2ae511701ec20ec156be3bf13e89"
+  integrity sha512-ADiq5H3NWm2kLq03qJ54Kfb5X+YwZzZkAB1uj+Y46SVnKjC9iOYXvO/R2GkdGfTvry8AtkyhdDHa+Gltl8epuw==
   dependencies:
     "@discordjs/voice" "^0.11.0"
     libsodium-wrappers "^0.7.10"
@@ -916,10 +916,10 @@ readable-web-to-node-stream@^3.0.2:
   dependencies:
     readable-stream "^3.6.0"
 
-reciple@^5.0.0-pre.3:
-  version "5.0.0-pre.3"
-  resolved "https://registry.yarnpkg.com/reciple/-/reciple-5.0.0-pre.3.tgz#8e2884658706c1f23d0aab2ed97938078021645a"
-  integrity sha512-FqdUyaCAoQq2gNJQSkfrMDBzxWr8EJP4ooWK9C/Sojl2EFTd/opxB+Z+p+o+KLkrwQsQoVh5bDHpQUPzz9hIlA==
+reciple@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/reciple/-/reciple-5.0.0.tgz#ae9c46c59dd895a3ffa6b2770117883a6d4761e6"
+  integrity sha512-+ijZRD3dVNoFl+a2OnlOJ+GB8m3ZgIN/fK7+D787VwWxis6thYqT8nxCBYBiUozYsYNqcbeAIcnQMWeL3dFVLw==
   dependencies:
     chalk "4.1.2"
     commander "^9.4.0"

@@ -1,120 +1,57 @@
-import { createConfig } from './_createConfig';
-
-import { EmbedBuilder, User } from 'discord.js';
+import { cwd, RecipleClient, RecipleScript } from 'reciple';
+import { TextBasedChannel, User } from 'discord.js';
+import EPlayerBaseModule from './_eplayer.base';
 import { Logger } from 'fallout-utility';
 import path from 'path';
-import { MessageCommandBuilder, RecipleClient, RecipleScript } from 'reciple';
 import yml from 'yaml';
-import BaseModule from './_BaseModule';
+import { createConfig } from './_eplayer.util';
 
-export interface NoCrashConfig {
-    ownerId: string;
-    reportToOwner: boolean;
-    preventCrash: boolean;
+export interface NoCrashModuleConfig {
+    logChannelId: string[];
+    dontExitOnError: boolean;
 }
 
-export class NoCrash extends BaseModule implements RecipleScript {
-    public config: NoCrashConfig = NoCrash.getConfig();
-    public logger?: Logger;
-    public owner?: User;
-    protected preventedCrashes: number = 0;
-    protected recentPreventedCrash: any;
+export class NoCrashModule extends EPlayerBaseModule implements RecipleScript {
+    public logger!: Logger;
+    public config: NoCrashModuleConfig = this.getConfig();
+    public sendTo: (User|TextBasedChannel)[] = [];
 
-    public onStart(client: RecipleClient) {
-        this.commands = [
-            new MessageCommandBuilder()
-                .setName('crash-reports')
-                .setDescription('Show crash reports info.')
-                .setExecute(async command => {
-                    const message = command.message;
-
-                    if (message.author.id !== this.owner?.id) {
-                        message.reply('You do not have permissions to execute this command.');
-                        return;
-                    }
-
-                    const err = this.recentPreventedCrash?.stack
-                        ? this.recentPreventedCrash.stack
-                        : `${this.recentPreventedCrash?.toString()}`;
-
-                    message.reply({
-                        embeds: [
-                            new EmbedBuilder()
-                                .setAuthor({ name: `Crash Reports`,iconURL: client.user?.displayAvatarURL() })
-                                .setDescription(' ')
-                                .addFields(
-                                    {
-                                        name: `Config`,
-                                        value: `\`\`\`json\n${JSON.stringify(this.config, null, 2)}\`\`\``
-                                    },
-                                    {
-                                        name: `Recent Crash Report`,
-                                        value: `\`\`\`js\n${this.recentPreventedCrash ? err : 'None'}\n\`\`\``
-                                    }
-                                )
-                                .setFooter({ text: `Prevented Crashes: ${this.preventedCrashes || 'None'}` })
-                        ]
-                    });
-                })
-        ];
+    public onStart(client: RecipleClient<boolean>): boolean | Promise<boolean> {
+        this.logger = client.logger.cloneLogger({ loggerName: 'NoCrashModule' });
 
         return true;
     }
 
-    public async onLoad(client: RecipleClient) {
-        this.logger = client.logger.cloneLogger({ loggerName: 'NoCrash' });
+    public async onLoad(client: RecipleClient<boolean>): Promise<void> {
+        for (const sendableId of this.config.logChannelId) {
+            let sendTo: typeof this["sendTo"][0]|undefined;
 
-        if (this.config.reportToOwner && this.config.ownerId) {
-            this.logger.info('Attempting to find owner...');
+            sendTo = client.users.cache.find(u => u.tag === sendableId) ?? await client.users.fetch(sendableId).catch(() => undefined);
 
-            const owner = client.users.cache.find(u => u.id == this.config.ownerId || u.tag == this.config.ownerId) || await client.users.fetch(this.config.ownerId).catch(() => undefined) || undefined;
-            if (owner) {
-                this.logger.info(`Found owner: ${owner.tag}`);
-                this.owner = owner;
-            } else {
-                this.logger.warn(`Could not find owner with id ${this.config.ownerId}`);
+            if (!sendTo) {
+                const channel = client.channels.cache.get(sendableId) ?? await client.channels.fetch(sendableId).catch(() => undefined);
+                if (channel?.isTextBased()) sendTo = channel;
             }
+
+            if (sendTo) this.sendTo.push(sendTo);
         }
 
-        this.logger.warn('Anti Crash Enabled!');
-
-        process.on('uncaughtException', async (err) => {
-            await this.reportCrash(err);
-            if (!this.config.preventCrash) process.exit(1);
+        process.on("uncaughtException", err => {
+            this.logger.err(err);
+            if (!this.config.dontExitOnError) process.exit(1);
         });
-        process.on('unhandledRejection', async (err) => {
-            await this.reportCrash(err);
-            if (!this.config.preventCrash) process.exit(1);
+        process.on("unhandledRejection", err => {
+            this.logger.err(err);
+            if (!this.config.dontExitOnError) process.exit(1);
         });
     }
 
-    public async reportCrash(message: any) {
-        this.logger?.error('Crash Detected! Ignore this message if it does not appear to be fatal.');
-        this.logger?.error(message);
-
-        this.preventedCrashes++;
-        this.recentPreventedCrash = message;
-
-        if (!this.config.reportToOwner || !this.config.ownerId) return;
-
-        const embed = new EmbedBuilder()
-            .setAuthor({ name: this.config.preventCrash ? 'Crash Detected!' : 'Uncaught Exception' })
-            .setColor('Red')
-            .setDescription(`**Message:** ${message.message}\n\`\`\`\n${message.stack}\n\`\`\``)
-            .setTimestamp();
-
-        await this.owner?.send({ embeds: [embed] }).catch(err => {
-            this.logger?.error(`Failed to send crash report to owner: ${err.message}`);
-            this.logger?.error(err);
-        });
+    public getConfig(): NoCrashModuleConfig {
+        return yml.parse(createConfig(path.join(cwd, 'config/nocrash.yml'), yml.stringify(NoCrashModule.defaultConfig)));
     }
 
-    public static getConfig(): NoCrashConfig {
-        const configPath = path.join(process.cwd(), 'config/nocrash/config.yml');
-        const defaultConfig = { ownerId: '', reportToOwner: false, preventCrash: true };
-
-        return yml.parse(createConfig(configPath, defaultConfig));
-    }
+    static readonly defaultConfig: NoCrashModuleConfig = {
+        logChannelId: ['000000000000000000', 'user#0000'],
+        dontExitOnError: true
+    };
 }
-
-export default new NoCrash();

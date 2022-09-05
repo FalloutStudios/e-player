@@ -1,26 +1,25 @@
 {
     "name": "e-player",
-    "version": "1.2.0",
     "description": "Discord music player",
     "author": "FalloutStudios",
     "license": "GPL-3.0",
     "scripts": {
-        "clean": "yarn exec rimraf modules",
+        "clean": "npx rimraf modules",
         "build": "yarn run clean && yarn exec tsc",
-        "test": "yarn run build && yarn exec rimraf config/e-player && npx reciple -D -c reciple.test.yml",
+        "test": "yarn run build && npx rimraf config/e-player && npx reciple -D -c reciple.yml",
         "start": "yarn exec reciple"
     },
     "dependencies": {
         "@discordjs/opus": "^0.8.0",
-        "@ghextercortes/djs-pagination": "^2.0.5",
+        "@ghextercortes/djs-pagination": "^3.0.0",
         "discord-player": "^5.3.1",
-        "discord.js": "^14.1.2",
+        "discord.js": "^14.3.0",
         "fallout-utility": "^1.4.6",
-        "genius-lyrics": "^4.3.8",
+        "genius-lyrics": "^4.4.0",
         "libsodium-wrappers": "^0.7.10",
         "ms": "^2.1.3",
         "opusscript": "^0.0.8",
-        "reciple": "^5.0.0",
+        "reciple": "^5.4.2",
         "rimraf": "^3.0.2",
         "sodium": "^3.0.2",
         "tweetnacl": "^1.0.3",
@@ -28,8 +27,8 @@
     },
     "devDependencies": {
         "@types/ms": "^0.7.31",
-        "@types/node": "^18.6.3",
+        "@types/node": "^18.7.15",
         "axios": "^0.27.2",
-        "typescript": "^4.7.4"
+        "typescript": "^4.8.2"
     }
 }

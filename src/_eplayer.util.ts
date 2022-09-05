@@ -2,7 +2,7 @@ import fs from 'fs';
 import yml from 'yaml';
 import path from 'path';
 
-export function createConfig(configPath: string, defaultData: string|{}|any[]): string {
+export function createConfig(configPath: string, defaultData: any): string {
     if (fs.existsSync(configPath)) return fs.readFileSync(configPath, 'utf8');
 
     const filename = path.extname(configPath);

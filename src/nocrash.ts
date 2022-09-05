@@ -55,3 +55,5 @@ export class NoCrashModule extends EPlayerBaseModule implements RecipleScript {
         dontExitOnError: true
     };
 }
+
+export default new NoCrashModule();

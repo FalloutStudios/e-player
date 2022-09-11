@@ -132,4 +132,4 @@ modules
 .stignore
 
 # config
-config/EPlayer
+config

@@ -1,6 +1,0 @@
-player:
-  autoSelfDeaf: true
-  leaveOnEmpty: true
-  leaveOnEmptyCooldown: 10000
-  volumeSmoothness: 500
-messages: {}

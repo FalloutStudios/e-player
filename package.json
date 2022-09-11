@@ -6,8 +6,11 @@
     "scripts": {
         "clean": "npx rimraf modules",
         "build": "yarn run clean && yarn exec tsc",
-        "test": "yarn run build && npx rimraf config/e-player && npx reciple -D -c reciple.yml",
-        "start": "yarn exec reciple"
+        "test": "yarn run build && npx rimraf config/e-player && yarn run prisma:push && npx reciple -D -c reciple.yml",
+        "start": "yarn exec reciple",
+        "prisma:format": "npx prisma format",
+        "prisma:generate": "npx prisma generate",
+        "prisma:push": "yarn run prisma:format && npx prisma db push"
     },
     "dependencies": {
         "@discordjs/opus": "^0.8.0",

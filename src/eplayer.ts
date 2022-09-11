@@ -4,6 +4,7 @@ import { EPlayerConfig, ePlayerDefaultConfig, EPlayerMetadata } from './EPlayer/
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import { Player, PlayerOptions, QueryType, Queue } from 'discord-player';
 import { EPlayerMessages, ePlayerMessages } from './EPlayer/messages';
+import { GuildDj } from './EPlayer/classes/GuildDj';
 import EPlayerBaseModule from './_eplayer.base';
 import { createConfig } from './_eplayer.util';
 import { PrismaClient } from '@prisma/client';
@@ -121,6 +122,19 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
 
     public getQueue<M extends any = EPlayerMetadata>(guild: GuildResolvable): Queue<M>|null {
         return this.player.getQueue(guild) ?? null;
+    }
+
+    public async getGuildDj<M extends any = EPlayerMetadata>(guild: GuildResolvable): Promise<GuildDj<M>|null> {
+        const queue = this.getQueue<M>(guild);
+        if (!queue) return null;
+
+        const guildDj = await this.prisma.guildDjs.findFirst({
+            where: {
+                guildId: queue.guild.id
+            }
+        });
+
+        return guildDj ? new GuildDj(queue, guildDj) : null;
     }
 
     public getMessageEmbed(messageKey: keyof EPlayerMessages, positive: boolean = false, ...placeholders: string[]): EmbedBuilder {

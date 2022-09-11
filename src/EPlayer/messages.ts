@@ -3,6 +3,7 @@ export const ePlayerMessages = {
     errorEmbedColor: '#de111e',
     loading: 'Please wait...',
     errorPlaying: 'description:Error playing **{0}**',
+    noQueuePermissions: 'No permissions to manage queue',
     noSearchQuery: 'Enter a search query',
     noResults: 'No results found',
     cantConnect: 'description:Can\'t connect to {0}',

@@ -11,5 +11,15 @@ datasource db {
 }
 
 model Guilds {
-    id String @id @unique
+  guildId String     @id @unique
+  dj      GuildDjs[]
+}
+
+model GuildDjs {
+  guildId             String  @id @unique
+  enabled             Boolean @default(false)
+  allowedRoles        Json    @default("[]")
+  requiredPermissions BigInt?
+
+  guild Guilds @relation(fields: [guildId], references: [guildId])
 }

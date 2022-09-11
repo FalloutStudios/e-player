@@ -1,26 +1,25 @@
 import { GuildDjs } from '@prisma/client';
 import { Queue } from 'discord-player';
 import { Collection, Guild, GuildMember, PermissionsBitField, Role } from 'discord.js';
-import eplayer from '../../eplayer';
 import { EPlayerMetadata } from '../config';
+import { GuildSettings } from './GuildSettings';
 
 export class GuildDj<M extends any = EPlayerMetadata> {
-    public queue: Queue<M>;
+    public guildSettings: GuildSettings<M>;
     public guild: Guild;
+    public queue: Queue<M>;
     public guildId: string;
     public enabled: boolean;
     public allowedRoles: Collection<string, Role>;
     public requiredPermissions?: PermissionsBitField;
 
-    constructor(queue: Queue<M>, options: GuildDjs) {
-        const guild = eplayer.client.guilds.cache.get(options.guildId);
-        if (!guild) throw new Error("Can't find guild " + options.guildId);
-
-        this.queue = queue;
-        this.guild = guild;
-        this.guildId = guild.id;
+    constructor(guildSettings: GuildSettings<M>, options: GuildDjs) {
+        this.guildSettings = guildSettings;
+        this.queue = guildSettings.queue;
+        this.guild = guildSettings.guild;
+        this.guildId = options.guildId;
         this.enabled = options.enabled;
-        this.allowedRoles = guild.roles.cache.filter(role => (options.allowedRoles as string[]).includes(role.id));
+        this.allowedRoles = this.guild.roles.cache.filter(role => (options.allowedRoles as string[]).includes(role.id));
         this.requiredPermissions = options.requiredPermissions ? new PermissionsBitField(options.requiredPermissions) : undefined;
     }
 

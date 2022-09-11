@@ -6,8 +6,8 @@ export default (player: EPlayer): AnyCommandData[] => {
     return [
         {
             type: CommandBuilderType.SlashCommand,
-            name: 'pause',
-            description: 'Pause currently playing song',
+            name: 'unpause',
+            description: 'Resume currently playing song',
             async execute(data) {
                 const interaction = data.interaction;
                 const member = interaction.member as GuildMember|null;
@@ -37,8 +37,9 @@ export default (player: EPlayer): AnyCommandData[] => {
         },
         {
             type: CommandBuilderType.MessageCommand,
-            name: 'pause',
-            description: 'Pause currently playing song',
+            name: 'unpause',
+            aliases: ['resume'],
+            description: 'Resume currently playing song',
             async execute(data) {
                 const message = data.message;
                 const member = message.member;

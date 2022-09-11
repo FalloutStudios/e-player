@@ -11,8 +11,9 @@ datasource db {
 }
 
 model Guilds {
-  guildId String     @id @unique
-  dj      GuildDjs[]
+  guildId     String             @id @unique
+  djSettings  GuildDjs[]
+  cachedQueue GuildCachedQueue[]
 }
 
 model GuildDjs {
@@ -20,6 +21,15 @@ model GuildDjs {
   enabled             Boolean @default(false)
   allowedRoles        Json    @default("[]")
   requiredPermissions BigInt?
+
+  guild Guilds @relation(fields: [guildId], references: [guildId])
+}
+
+model GuildCachedQueue {
+  guildId       String   @id @unique
+  tracks        Json     @default("[]")
+  textChannelId String?
+  expireAt      DateTime @default(now())
 
   guild Guilds @relation(fields: [guildId], references: [guildId])
 }

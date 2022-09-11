@@ -6,11 +6,12 @@ import { Player, PlayerOptions, QueryType, Queue } from 'discord-player';
 import { EPlayerMessages, ePlayerMessages } from './EPlayer/messages';
 import { GuildDj } from './EPlayer/classes/GuildDj';
 import EPlayerBaseModule from './_eplayer.base';
-import { createConfig } from './_eplayer.util';
+import { createConfig, createGuildData, deleteGuildData } from './_eplayer.util';
 import { PrismaClient } from '@prisma/client';
 import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
 import yml from 'yaml';
+import { GuildSettings } from './EPlayer/classes/GuildSettings';
 
 export type EPlayerCommand = (player: EPlayer) => (AnyCommandBuilder|AnyCommandData)[];
 
@@ -33,6 +34,11 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         this.player.on('error', (queue, error) => this.logger.err(error));
 
         return true;
+    }
+
+    public async onLoad(client: RecipleClient<boolean>): Promise<void> {
+        client.on("guildCreate", createGuildData);
+        client.on("guildDelete", deleteGuildData);
     }
 
     public async loadCommands(): Promise<void> {
@@ -124,17 +130,16 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         return this.player.getQueue(guild) ?? null;
     }
 
-    public async getGuildDj<M extends any = EPlayerMetadata>(guild: GuildResolvable): Promise<GuildDj<M>|null> {
+    public async getGuildSettings<M extends any = EPlayerMetadata>(guild: GuildResolvable): Promise<GuildSettings<M>|null> {
         const queue = this.getQueue<M>(guild);
         if (!queue) return null;
 
-        const guildDj = await this.prisma.guildDjs.findFirst({
-            where: {
-                guildId: queue.guild.id
-            }
+        const guildSettingsOption = await this.prisma.guilds.findFirst({
+            where: { guildId: queue.guild.id }
         });
+        if (!guildSettingsOption) return null;
 
-        return guildDj ? new GuildDj(queue, guildDj) : null;
+        return new GuildSettings<M>(queue, guildSettingsOption);
     }
 
     public getMessageEmbed(messageKey: keyof EPlayerMessages, positive: boolean = false, ...placeholders: string[]): EmbedBuilder {

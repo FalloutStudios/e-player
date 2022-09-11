@@ -23,8 +23,6 @@ export class GuildSettings<M extends any = EPlayerMetadata> {
         this.guild = queue.guild;
         this.client = <RecipleClient<true>>(this.guild.client);
         this.guildId = options.guildId;
-
-        this.fetch();
     }
 
     public async fetch(): Promise<this> {

@@ -74,6 +74,8 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
 
         if (!results || !(results.playlist?.tracks ?? results.tracks).length) return this.getMessageEmbed('noResults');
 
+        await createGuildData(guild).catch(() => null);
+
         const queue = this.player.createQueue<EPlayerMetadata>(guild, { ...this.config.player, metadata: {
             textChannel: textChannel && textChannel.permissionsFor(guild.members.me).has(this.config.requiredBotTextPermissions) ? textChannel : undefined
         } });
@@ -139,7 +141,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         });
         if (!guildSettingsOption) return null;
 
-        return new GuildSettings<M>(queue, guildSettingsOption);
+        return (new GuildSettings<M>(queue, guildSettingsOption)).fetch();
     }
 
     public getMessageEmbed(messageKey: keyof EPlayerMessages, positive: boolean = false, ...placeholders: string[]): EmbedBuilder {

@@ -17,8 +17,14 @@ export default (player: EPlayer): AnyCommandData[] => {
                     return;
                 }
 
-                const djPermissions = await player.getGuildDj(guild.id);
-                if (!djPermissions?.isDjMember(member)) {
+                const djPermissions = await player.getGuildSettings(guild.id);
+
+                if (!djPermissions) {
+                    await interaction.reply({ embeds: [player.getMessageEmbed('unknownError')] });
+                    return;
+                }
+
+                if (!djPermissions.djSettings?.isDjMember(member)) {
                     await interaction.reply({ embeds: [player.getMessageEmbed('noQueuePermissions')] });
                     return;
                 }
@@ -49,8 +55,14 @@ export default (player: EPlayer): AnyCommandData[] => {
                     return;
                 }
 
-                const djPermissions = await player.getGuildDj(guild.id);
-                if (!djPermissions?.isDjMember(member)) {
+                const djPermissions = await player.getGuildSettings(guild.id);
+
+                if (!djPermissions) {
+                    await message.reply({ embeds: [player.getMessageEmbed('unknownError')] });
+                    return;
+                }
+
+                if (!djPermissions.djSettings?.isDjMember(member)) {
                     await message.reply({ embeds: [player.getMessageEmbed('noQueuePermissions')] });
                     return;
                 }

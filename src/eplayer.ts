@@ -4,14 +4,12 @@ import { EPlayerConfig, ePlayerDefaultConfig, EPlayerMetadata } from './EPlayer/
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import { Player, PlayerOptions, QueryType, Queue } from 'discord-player';
 import { EPlayerMessages, ePlayerMessages } from './EPlayer/messages';
-import { GuildDj } from './EPlayer/classes/GuildDj';
 import EPlayerBaseModule from './_eplayer.base';
-import { createConfig, createGuildData, deleteGuildData } from './_eplayer.util';
+import { createConfig } from './_eplayer.util';
 import { PrismaClient } from '@prisma/client';
 import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
 import yml from 'yaml';
-import { GuildSettings } from './EPlayer/classes/GuildSettings';
 
 export type EPlayerCommand = (player: EPlayer) => (AnyCommandBuilder|AnyCommandData)[];
 
@@ -34,11 +32,6 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         this.player.on('error', (queue, error) => this.logger.err(error));
 
         return true;
-    }
-
-    public async onLoad(client: RecipleClient<boolean>): Promise<void> {
-        client.on("guildCreate", createGuildData);
-        client.on("guildDelete", deleteGuildData);
     }
 
     public async loadCommands(): Promise<void> {
@@ -73,8 +66,6 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         }).catch(() => null);
 
         if (!results || !(results.playlist?.tracks ?? results.tracks).length) return this.getMessageEmbed('noResults');
-
-        await createGuildData(guild).catch(() => null);
 
         const queue = this.player.createQueue<EPlayerMetadata>(guild, { ...this.config.player, metadata: {
             textChannel: textChannel && textChannel.permissionsFor(guild.members.me).has(this.config.requiredBotTextPermissions) ? textChannel : undefined
@@ -130,18 +121,6 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
 
     public getQueue<M extends any = EPlayerMetadata>(guild: GuildResolvable): Queue<M>|null {
         return this.player.getQueue(guild) ?? null;
-    }
-
-    public async getGuildSettings<M extends any = EPlayerMetadata>(guild: GuildResolvable): Promise<GuildSettings<M>|null> {
-        const queue = this.getQueue<M>(guild);
-        if (!queue) return null;
-
-        const guildSettingsOption = await this.prisma.guilds.findFirst({
-            where: { guildId: queue.guild.id }
-        });
-        if (!guildSettingsOption) return null;
-
-        return (new GuildSettings<M>(queue, guildSettingsOption)).fetch();
     }
 
     public getMessageEmbed(messageKey: keyof EPlayerMessages, positive: boolean = false, ...placeholders: string[]): EmbedBuilder {

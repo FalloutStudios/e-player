@@ -10,26 +10,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Guilds {
-  guildId     String             @id @unique
-  djSettings  GuildDjs[]
-  cachedQueue GuildCachedQueue[]
+model GuildSettings {
+    id String @unique @id
+    pro Boolean @default(false)
+    proExpireAt DateTime @default(now())
+    commandsChannelId String?
+
+    djSettings GuildDjSettings[]
+    cachedQueue GuildCachedQueue[]
 }
 
-model GuildDjs {
-  guildId             String  @id @unique
-  enabled             Boolean @default(false)
-  allowedRoles        Json    @default("[]")
-  requiredPermissions BigInt?
+model GuildDjSettings {
+    id String @unique @id
+    requiredPermissions BigInt @default(0)
+    allowedRoles Json @default("[]")
+    allowedUsers Json @default("[]")
 
-  guild Guilds @relation(fields: [guildId], references: [guildId])
+    guildSettings GuildSettings @relation(fields: [id], references: [id])
 }
 
 model GuildCachedQueue {
-  guildId       String   @id @unique
-  tracks        Json     @default("[]")
-  textChannelId String?
-  expireAt      DateTime @default(now())
+    id String @unique @id
+    tracks Json @default("[]")
+    commandsChannelId String?
 
-  guild Guilds @relation(fields: [guildId], references: [guildId])
+    guildSettings GuildSettings @relation(fields: [id], references: [id])
 }

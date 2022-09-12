@@ -113,6 +113,27 @@ export class GuildSettings<M extends any = EPlayerMetadata> extends Base {
         return this;
     }
 
+    public async update(): Promise<this> {
+        await this.prisma.guildSettings.upsert({
+            where: { id: this.guild.id },
+            create: {
+                id: this.id,
+                pro: this.pro,
+                proExpireAt: this.proExpireAt,
+                commandsChannelId: this.commandsChannelId
+            },
+            update: {
+                pro: this.pro,
+                proExpireAt: this.proExpireAt
+            }
+        });
+
+        await this.djSettings?.update();
+        await this.cachedQueue?.update();
+
+        return this;
+    }
+
     public async delete(): Promise<void> {
         if (this.djSettings && !this.djSettings.deleted) await this.djSettings.delete();
         if (this.cachedQueue && !this.cachedQueue.deleted) await this.cachedQueue.delete();

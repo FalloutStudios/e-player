@@ -25,6 +25,7 @@ export abstract class Base {
     }
 
     public abstract fetch(): Promise<this>;
+    public abstract update(): Promise<this>;
 
     public async delete(): Promise<void> {
         this._deleted = true;

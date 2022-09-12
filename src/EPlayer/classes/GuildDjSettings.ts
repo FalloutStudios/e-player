@@ -51,6 +51,26 @@ export class GuildDjSettings<M extends any = EPlayerMetadata> extends Base {
         return this;
     }
 
+    public async update(): Promise<this> {
+        await this.prisma.guildDjSettings.upsert({
+            where: { id: this.guild.id },
+            create: {
+                id: this.id,
+                requiredPermissions: this.requiredPermissions.bitfield,
+                allowedRoles: this.allowedRoles,
+                allowedUsers: this.allowedUsers
+            },
+            update: {
+                id: this.id,
+                requiredPermissions: this.requiredPermissions.bitfield,
+                allowedRoles: this.allowedRoles,
+                allowedUsers: this.allowedUsers
+            }
+        });
+
+        return this;
+    }
+
     public async delete(): Promise<void> {
         await this.prisma.guildDjSettings.delete({
             where: { id: this.guild.id }

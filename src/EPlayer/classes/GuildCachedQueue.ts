@@ -1,5 +1,5 @@
 import { GuildCachedQueue as GuildCachedQueueModel } from '@prisma/client';
-import { Guild, GuildTextBasedChannel } from 'discord.js';
+import { Guild, GuildTextBasedChannel, User } from 'discord.js';
 import { isObjectArray } from '../../_eplayer.util';
 import { EPlayerMetadata } from '../config';
 import { Base, BaseOptions } from './Base';
@@ -11,6 +11,7 @@ export interface GuildCachedQueueTrack {
     playlistURL?: string;
     thumbnail?: string;
     requestedById: string;
+    requestedBy?: User;
     title: string;
 }
 
@@ -24,8 +25,8 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
 
     public id: string;
     public tracks: GuildCachedQueueTrack[] = [];
-    public commandChannelId: string|null = null;
-    public commandChannel: GuildTextBasedChannel|null = null;
+    public commandsChannelId: string|null = null;
+    public commandsChannel: GuildTextBasedChannel|null = null;
 
     get guildSettins() { return this._guildSettings; }
     get guild() { return this._guild; }
@@ -37,13 +38,19 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
         this._guild = options.guildSettings.guild;
 
         this.id = options.id;
-        this.tracks = isObjectArray<GuildCachedQueueTrack>(options.tracks) ? options.tracks : [];
-        this.commandChannelId = options.commandsChannelId;
+        this.tracks = isObjectArray<GuildCachedQueueTrack>(options.tracks)
+            ? options.tracks.map(track => {
+                    const requestedBy = this.client.users.cache.get(track.requestedById);
+                    return { ...track, requestedBy };
+                })
+            : [];
 
-        const possiblyCachedCommandChannel = this.commandChannelId ? this.guild.channels.cache.get(this.commandChannelId) : null;
+        this.commandsChannelId = options.commandsChannelId;
 
-        this.commandChannel = possiblyCachedCommandChannel && possiblyCachedCommandChannel.isTextBased() && !possiblyCachedCommandChannel.isDMBased()
-            ? possiblyCachedCommandChannel
+        const possiblyCachedCommandsChannel = this.commandsChannelId ? this.guild.channels.cache.get(this.commandsChannelId) : null;
+
+        this.commandsChannel = possiblyCachedCommandsChannel && possiblyCachedCommandsChannel.isTextBased() && !possiblyCachedCommandsChannel.isDMBased()
+            ? possiblyCachedCommandsChannel
             : null;
     }
 
@@ -58,13 +65,37 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
         }
 
         this.id = newSelfData.id;
-        this.tracks = isObjectArray<GuildCachedQueueTrack>(newSelfData.tracks) ? newSelfData.tracks : [];
-        this.commandChannelId = newSelfData.commandsChannelId;
+        this.tracks = isObjectArray<GuildCachedQueueTrack>(newSelfData.tracks)
+            ? await Promise.all(newSelfData.tracks.map(async track => {
+                    const requestedBy = (this.client.users.cache.get(track.requestedById) ?? await this.client.users.fetch(track.requestedById).catch(() => null)) || undefined;
+                    return { ...track, requestedBy };
+                }))
+            : [];
 
-        const fetchCommandChannel = this.commandChannelId ? await this.guild.channels.fetch(this.commandChannelId) : null;
-        this.commandChannel = fetchCommandChannel && fetchCommandChannel.isTextBased() && !fetchCommandChannel.isDMBased()
+        this.commandsChannelId = newSelfData.commandsChannelId;
+
+        const fetchCommandChannel = this.commandsChannelId ? await this.guild.channels.fetch(this.commandsChannelId) : null;
+        this.commandsChannel = fetchCommandChannel && fetchCommandChannel.isTextBased() && !fetchCommandChannel.isDMBased()
             ? fetchCommandChannel
             : null;
+
+        return this;
+    }
+
+    public async update(): Promise<this> {
+        await this.prisma.guildCachedQueue.upsert({
+            where: { id: this.guild.id },
+            create: {
+                id: this.guild.id,
+                tracks: this.tracks as {}[],
+                commandsChannelId: this.commandsChannelId
+            },
+            update: {
+                id: this.guild.id,
+                tracks: this.tracks as {}[],
+                commandsChannelId: this.commandsChannelId
+            }
+        });
 
         return this;
     }

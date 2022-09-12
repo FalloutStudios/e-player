@@ -7,13 +7,26 @@ export interface BaseOptions {
 }
 
 export abstract class Base {
-    protected player: EPlayer;
-    protected prisma: PrismaClient;
-    protected client: RecipleClient<true>;
+    private _player: EPlayer;
+    private _prisma: PrismaClient;
+    private _client: RecipleClient<true>;
+
+    protected _deleted: boolean = false;
+
+    get player() { return this._player; }
+    get prisma() { return this._prisma; }
+    get client() { return this._client; }
+    get deleted() { return this._deleted; }
 
     constructor(options: BaseOptions) {
-        this.player = options.player;
-        this.prisma = options.player.prisma;
-        this.client = options.player.client;
+        this._player = options.player;
+        this._prisma = options.player.prisma;
+        this._client = options.player.client;
+    }
+
+    public abstract fetch(): Promise<this>;
+
+    public async delete(): Promise<void> {
+        this._deleted = true;
     }
 }

@@ -11,28 +11,28 @@ datasource db {
 }
 
 model GuildSettings {
-    id String @unique @id
-    pro Boolean @default(false)
-    proExpireAt DateTime @default(now())
-    commandsChannelId String?
+  id                String    @id @unique
+  pro               Boolean   @default(false)
+  proExpireAt       DateTime?
+  commandsChannelId String?
 
-    djSettings GuildDjSettings[]
-    cachedQueue GuildCachedQueue[]
+  djSettings  GuildDjSettings[]
+  cachedQueue GuildCachedQueue[]
 }
 
 model GuildDjSettings {
-    id String @unique @id
-    requiredPermissions BigInt @default(0)
-    allowedRoles Json @default("[]")
-    allowedUsers Json @default("[]")
+  id                  String @id @unique
+  requiredPermissions BigInt @default(0)
+  allowedRoles        Json   @default("[]")
+  allowedUsers        Json   @default("[]")
 
-    guildSettings GuildSettings @relation(fields: [id], references: [id])
+  guildSettings GuildSettings @relation(fields: [id], references: [id])
 }
 
 model GuildCachedQueue {
-    id String @unique @id
-    tracks Json @default("[]")
-    commandsChannelId String?
+  id                String  @id @unique
+  tracks            Json    @default("[]")
+  commandsChannelId String?
 
-    guildSettings GuildSettings @relation(fields: [id], references: [id])
+  guildSettings GuildSettings @relation(fields: [id], references: [id])
 }

@@ -17,3 +17,11 @@ export function createConfig(configPath: string, defaultData: any): string {
 }
 
 export async function commandHalt(haltData: AnyCommandHaltData): Promise<boolean|void> {}
+
+export function isStringArray(data: unknown): data is string[] {
+    return typeof data === 'object' && Array.isArray(data) && data.every(i => typeof i === 'string');
+}
+
+export function isObjectArray<T extends any>(data: unknown): data is T[] {
+    return typeof data === 'object' && Array.isArray(data) && data.every(i => typeof i === 'object');
+}

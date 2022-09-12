@@ -1,5 +1,6 @@
 import { GuildCachedQueue as GuildCachedQueueModel } from '@prisma/client';
-import { Guild, GuildTextBasedChannel, User } from 'discord.js';
+import { Queue, Track } from 'discord-player';
+import { Guild, GuildTextBasedChannel, normalizeArray, RestOrArray, User } from 'discord.js';
 import eplayer from '../../eplayer';
 import { isObjectArray } from '../../_eplayer.util';
 import { EPlayerMetadata } from '../config';
@@ -9,18 +10,17 @@ import { GuildSettings } from './GuildSettings';
 export interface GuildCachedQueueTrack {
     sourceURL: string;
     displayURL: string;
-    playlistURL?: string;
     thumbnail?: string;
     requestedById: string;
     requestedBy?: User;
     title: string;
 }
 
-export interface GuildCachedQueueOptions<M extends any = EPlayerMetadata> extends BaseOptions,GuildCachedQueueModel {
+export interface GuildCachedQueueOptions<M extends EPlayerMetadata = EPlayerMetadata> extends BaseOptions,GuildCachedQueueModel {
     guildSettings: GuildSettings<M>;
 }
 
-export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
+export class GuildCachedQueue<M extends EPlayerMetadata = EPlayerMetadata> extends Base {
     private _guildSettings: GuildSettings<M>;
     private _guild: Guild;
 
@@ -29,7 +29,7 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
     public commandsChannelId: string|null = null;
     public commandsChannel: GuildTextBasedChannel|null = null;
 
-    get guildSettins() { return this._guildSettings; }
+    get guildSettings() { return this._guildSettings; }
     get guild() { return this._guild; }
 
     constructor(options: GuildCachedQueueOptions<M>) {
@@ -53,6 +53,24 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
         this.commandsChannel = possiblyCachedCommandsChannel && possiblyCachedCommandsChannel.isTextBased() && !possiblyCachedCommandsChannel.isDMBased()
             ? possiblyCachedCommandsChannel
             : null;
+    }
+
+    public setCommandsChannel(channel?: GuildTextBasedChannel): this {
+        this.commandsChannelId = channel?.id ?? null;
+        this.commandsChannel = channel ?? null;
+        return this;
+    }
+
+    public setTracks(...tracks: RestOrArray<GuildCachedQueueTrack|Track>): this {
+        this.tracks = normalizeArray(tracks).map(t => tracks instanceof Track ? GuildCachedQueue.parseTrack(t) : t) as GuildCachedQueueTrack[];
+        return this;
+    }
+
+    public cacheCurrentQueue(queue?: Queue<M>): void {
+        if (!this.guildSettings.queue && !queue) throw new Error(`No queue for ${this.guild.id}`);
+
+        this.setCommandsChannel((queue ?? this.guildSettings.queue)?.metadata?.textChannel);
+        this.setTracks((queue ?? this.guildSettings.queue)?.tracks ?? []);
     }
 
     public async fetch(): Promise<this> {
@@ -121,5 +139,18 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
                 tracks: data.tracks as string[]|undefined ?? []
             }
         });
+    }
+
+    public static parseTrack(track: Track|GuildCachedQueueTrack): GuildCachedQueueTrack {
+        if (!(track instanceof Track)) return track;
+
+        return {
+            sourceURL: track.source,
+            displayURL: track.url,
+            title: track.title,
+            requestedById: track.requestedBy.id,
+            requestedBy: track.requestedBy,
+            thumbnail: track.thumbnail
+        };
     }
 }

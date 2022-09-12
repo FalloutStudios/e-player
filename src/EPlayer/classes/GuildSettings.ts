@@ -13,7 +13,7 @@ export interface GuildSettingsOptions extends BaseOptions,GuildSettingsModel {
     cachedQueueOptions?: Omit<GuildCachedQueueOptions, 'player' | 'guildSettings'>;
 }
 
-export class GuildSettings<M extends any = EPlayerMetadata> extends Base {
+export class GuildSettings<M extends EPlayerMetadata = EPlayerMetadata> extends Base {
     private _queue: Queue<M>|null = null;
     private _guild: Guild;
 

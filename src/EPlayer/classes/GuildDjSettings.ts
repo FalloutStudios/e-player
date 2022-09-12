@@ -6,11 +6,11 @@ import { EPlayerMetadata } from '../config';
 import { Base, BaseOptions } from './Base';
 import { GuildSettings } from './GuildSettings';
 
-export interface GuildDjSettingsOptions<M extends any = EPlayerMetadata> extends BaseOptions,GuildDjSettingsModel {
+export interface GuildDjSettingsOptions<M extends EPlayerMetadata = EPlayerMetadata> extends BaseOptions,GuildDjSettingsModel {
     guildSettings: GuildSettings<M>;
 }
 
-export class GuildDjSettings<M extends any = EPlayerMetadata> extends Base {
+export class GuildDjSettings<M extends EPlayerMetadata = EPlayerMetadata> extends Base {
     private _guildSettings: GuildSettings<M>;
     private _guild: Guild;
 

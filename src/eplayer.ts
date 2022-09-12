@@ -5,7 +5,7 @@ import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import { Player, PlayerOptions, QueryType, Queue } from 'discord-player';
 import { EPlayerMessages, ePlayerMessages } from './EPlayer/messages';
 import EPlayerBaseModule from './_eplayer.base';
-import { createConfig } from './_eplayer.util';
+import { createConfig, createGuildSettingsData } from './_eplayer.util';
 import { PrismaClient } from '@prisma/client';
 import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
@@ -31,6 +31,14 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         this.player.on('debug', (queue, message) => this.logger.debug(message));
         this.player.on('connectionError', (queue, error) => this.logger.err(error));
         this.player.on('error', (queue, error) => this.logger.err(error));
+
+        client.on('guildCreate', async guild => createGuildSettingsData(guild.id));
+        client.on('guildDelete', async guild => {
+            const data = await this.getGuildSettings(guild);
+            if (!data) return;
+
+            await data.delete();
+        });
 
         return true;
     }

@@ -6,7 +6,7 @@ export interface BaseOptions {
     player: EPlayer;
 }
 
-export class Base {
+export abstract class Base {
     protected player: EPlayer;
     protected prisma: PrismaClient;
     protected client: RecipleClient<true>;

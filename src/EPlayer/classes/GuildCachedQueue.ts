@@ -110,11 +110,16 @@ export class GuildCachedQueue<M extends any = EPlayerMetadata> extends Base {
     }
 
     public static async createIfNotExists(data: Partial<GuildCachedQueueModel> & { id: string; }): Promise<void> {
-        const isExists = await eplayer.prisma.guildSettings.count({
+        const isExists = await eplayer.prisma.guildCachedQueue.count({
             where: { id: data.id }
         });
         if (isExists) return;
 
-        await eplayer.prisma.guildSettings.create({ data });
+        await eplayer.prisma.guildCachedQueue.create({
+            data: {
+                ...data,
+                tracks: data.tracks as string[]|undefined ?? []
+            }
+        });
     }
 }

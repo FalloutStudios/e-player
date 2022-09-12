@@ -1,4 +1,4 @@
-import { EmbedBuilder, Guild, GuildMember, GuildResolvable, GuildTextBasedChannel } from 'discord.js';
+import { Collection, EmbedBuilder, Guild, GuildMember, GuildResolvable, GuildTextBasedChannel } from 'discord.js';
 import { AnyCommandBuilder, AnyCommandData, cwd, RecipleClient, RecipleScript } from 'reciple';
 import { EPlayerConfig, ePlayerDefaultConfig, EPlayerMetadata } from './EPlayer/config';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
@@ -20,6 +20,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
     public config: EPlayerConfig = this.getConfig();
     public player!: Player;
     public prisma: PrismaClient = new PrismaClient();
+    public settingsCache: Collection<string, GuildSettings> = new Collection();
 
     public async onStart(client: RecipleClient<boolean>): Promise<boolean> {
         this.client = client;
@@ -34,7 +35,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
 
         client.on('guildCreate', async guild => createGuildSettingsData(guild.id));
         client.on('guildDelete', async guild => {
-            const data = await this.getGuildSettings(guild);
+            const data = await this.getGuildSettings(guild.id);
             if (!data) return;
 
             await data.delete();
@@ -168,6 +169,10 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         return message as T;
     }
 
+    public async getGuildSettings(guildId: string): Promise<GuildSettings|null> {
+        return this.settingsCache.has(guildId) ? this.settingsCache.get(guildId) ?? null : this.fetchGuildSettings(guildId);
+    }
+
     public getConfig(): EPlayerConfig {
         return {
             ...ePlayerDefaultConfig,
@@ -175,31 +180,34 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         };
     }
 
-    public async getGuildSettings(guild: GuildResolvable): Promise<GuildSettings|null> {
-        const queue = this.getQueue(guild);
-        if (!queue) return null;
+    public async fetchGuildSettings(guildId: string, cache: boolean = true): Promise<GuildSettings|null> {
+        const guild = this.client.guilds.resolve(guildId);
+        if (!guild) return null;
 
         const guildSettingsData = await this.prisma.guildSettings.findFirst({
-            where: { id: queue.guild.id },
+            where: { id: guildId },
             include: {
                 cachedQueue: {
-                    where: { id: queue.guild.id }
+                    where: { id: guildId }
                 },
                 djSettings: {
-                    where: { id: queue.guild.id }
+                    where: { id: guildId }
                 }
             }
         });
 
         if (!guildSettingsData) return null;
 
-        return (new GuildSettings({
+        const settings = await (new GuildSettings({
             player: this,
-            guild: queue.guild,
+            guild: guild,
             ...guildSettingsData,
             djSettingsOptions: { ...guildSettingsData.djSettings[0] },
             cachedQueueOptions: { ...guildSettingsData.cachedQueue[0] }
         })).fetch();
+
+        if (cache) this.settingsCache.set(guildId, settings);
+        return settings;
     }
 }
 

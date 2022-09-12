@@ -73,6 +73,13 @@ export class GuildCachedQueue<M extends EPlayerMetadata = EPlayerMetadata> exten
         this.setTracks((queue ?? this.guildSettings.queue)?.tracks ?? []);
     }
 
+    public async clear(): Promise<void> {
+        this.setCommandsChannel();
+        this.setTracks();
+
+        await this.update();
+    }
+
     public async fetch(): Promise<this> {
         const newSelfData = await this.prisma.guildCachedQueue.findFirst({
             where: { id: this.guild.id }

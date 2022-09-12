@@ -1,5 +1,5 @@
 import { GuildDjSettings as GuildDjSettingsModel } from '@prisma/client';
-import { Guild, PermissionsBitField } from 'discord.js';
+import { Guild, GuildMember, normalizeArray, PermissionResolvable, PermissionsBitField, RestOrArray, RoleResolvable, UserResolvable } from 'discord.js';
 import eplayer from '../../eplayer';
 import { isStringArray } from '../../_eplayer.util';
 import { EPlayerMetadata } from '../config';
@@ -15,6 +15,7 @@ export class GuildDjSettings<M extends EPlayerMetadata = EPlayerMetadata> extend
     private _guild: Guild;
 
     public id: string;
+    public enabled: boolean = false;
     public requiredPermissions: PermissionsBitField;
     public allowedRoles: string[] = [];
     public allowedUsers: string[] = [];
@@ -29,9 +30,43 @@ export class GuildDjSettings<M extends EPlayerMetadata = EPlayerMetadata> extend
         this._guild = options.guildSettings.guild;
 
         this.id = options.id;
+        this.enabled = options.enabled;
         this.requiredPermissions = new PermissionsBitField(options.requiredPermissions);
         this.allowedRoles = isStringArray(options.allowedRoles) ? options.allowedRoles : [];
         this.allowedUsers = isStringArray(options.allowedUsers) ? options.allowedUsers : [];
+    }
+
+    public isDjMember(member: GuildMember): boolean {
+        if (!this.isInValidVoiceChannel(member)) return false;
+        if (!this.enabled) return true;
+
+        return this.isPermitted(member.permissions) && (this.isAllowedUser(member) || member.roles.cache.some(role => this.isAllowedRole(role)));
+    }
+
+    public isInValidVoiceChannel(member: GuildMember): boolean {
+        if (member.guild.id !== this.guild.id) return false;
+        if (!member.voice.channel) return false;
+        if (this.guild.members.me?.voice.channel && member.voice.channel.id !== this.guild.members.me?.voice.channel.id) return false;
+        if (!member.voice.channel.permissionsFor(this.client.user)?.has(this.player.config.requiredBotVoicePermissions)) return false;
+
+        return true;
+    }
+
+    public isPermitted(...permissions: RestOrArray<PermissionResolvable>): boolean {
+        return !this.enabled || this.enabled && this.requiredPermissions.has(normalizeArray(permissions));
+    }
+
+    public isAllowedUser(user: UserResolvable): boolean {
+        return !this.enabled || this.enabled && this.allowedUsers.includes(typeof user === 'string' ? user : user.id);
+    }
+
+    public isAllowedRole(role: RoleResolvable): boolean {
+        return !this.enabled || this.enabled && this.allowedUsers.includes(typeof role === 'string' ? role : role.id);
+    }
+
+    public setEnabled(enabled: boolean): this {
+        this.enabled = enabled;
+        return this;
     }
 
     public async fetch(): Promise<this> {

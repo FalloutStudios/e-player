@@ -63,6 +63,18 @@ export class GuildSettings<M extends EPlayerMetadata = EPlayerMetadata> extends 
             : null;
     }
 
+    public getQueue(): Queue<M>|null {
+        this._queue = this.player.getQueue<M>(this._guild);
+        return this.queue;
+    }
+
+    public setCommandsChannel(channel?: GuildTextBasedChannel): this {
+        this.commandsChannel = channel ?? null;
+        this.commandsChannelId = channel?.id ?? null;
+
+        return this;
+    }
+
     public async fetch(): Promise<this> {
         const newSelfData = await this.prisma.guildSettings.findFirst({
             where: { id: this.guild.id },

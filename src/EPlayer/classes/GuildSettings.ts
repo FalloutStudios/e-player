@@ -1,6 +1,7 @@
 import { GuildSettings as GuildSettingsModel } from '@prisma/client';
 import { Queue } from 'discord-player';
 import { Guild, GuildTextBasedChannel } from 'discord.js';
+import eplayer from '../../eplayer';
 import { EPlayerMetadata } from '../config';
 import { Base, BaseOptions } from './Base';
 import { GuildCachedQueue, GuildCachedQueueOptions } from './GuildCachedQueue';
@@ -151,5 +152,14 @@ export class GuildSettings<M extends any = EPlayerMetadata> extends Base {
         });
 
         super.delete();
+    }
+
+    public static async createIfNotExists(data: Partial<GuildSettingsModel> & { id: string; }): Promise<void> {
+        const isExists = await eplayer.prisma.guildSettings.count({
+            where: { id: data.id }
+        });
+        if (isExists) return;
+
+        await eplayer.prisma.guildSettings.create({ data });
     }
 }

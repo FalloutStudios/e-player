@@ -10,6 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
 import yml from 'yaml';
+import { GuildSettings } from './EPlayer/classes/GuildSettings';
 
 export type EPlayerCommand = (player: EPlayer) => (AnyCommandBuilder|AnyCommandData)[];
 
@@ -164,6 +165,33 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
             ...ePlayerDefaultConfig,
             ...yml.parse(createConfig(path.join(cwd, 'config/eplayer.yml'), yml.stringify(ePlayerDefaultConfig)))
         };
+    }
+
+    public async getGuildSettings(guild: GuildResolvable): Promise<GuildSettings|null> {
+        const queue = this.getQueue(guild);
+        if (!queue) return null;
+
+        const guildSettingsData = await this.prisma.guildSettings.findFirst({
+            where: { id: queue.guild.id },
+            include: {
+                cachedQueue: {
+                    where: { id: queue.guild.id }
+                },
+                djSettings: {
+                    where: { id: queue.guild.id }
+                }
+            }
+        });
+
+        if (!guildSettingsData) return null;
+
+        return (new GuildSettings({
+            player: this,
+            guild: queue.guild,
+            ...guildSettingsData,
+            djSettingsOptions: { ...guildSettingsData.djSettings[0] },
+            cachedQueueOptions: { ...guildSettingsData.cachedQueue[0] }
+        })).fetch();
     }
 }
 

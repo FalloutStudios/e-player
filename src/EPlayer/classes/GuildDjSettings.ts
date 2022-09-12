@@ -1,5 +1,6 @@
 import { GuildDjSettings as GuildDjSettingsModel } from '@prisma/client';
 import { Guild, PermissionsBitField } from 'discord.js';
+import eplayer from '../../eplayer';
 import { isStringArray } from '../../_eplayer.util';
 import { EPlayerMetadata } from '../config';
 import { Base, BaseOptions } from './Base';
@@ -77,5 +78,14 @@ export class GuildDjSettings<M extends any = EPlayerMetadata> extends Base {
         });
 
         super.delete();
+    }
+
+    public static async createIfNotExists(data: Partial<GuildDjSettingsModel> & { id: string; }): Promise<void> {
+        const isExists = await eplayer.prisma.guildSettings.count({
+            where: { id: data.id }
+        });
+        if (isExists) return;
+
+        await eplayer.prisma.guildSettings.create({ data });
     }
 }

@@ -71,7 +71,6 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         if (guild.members.me.voice.channel && author.voice.channel.id !== guild.members.me.voice.channel.id) return this.getMessageEmbed('InDifferentVoiceChannel', false, guild.members.me.voice.channel.toString());
         if (!author.voice.channel.permissionsFor(guild.members.me).has(this.config.requiredBotVoicePermissions)) return this.getMessageEmbed('noVoicePermissions', false, author.voice.channel.toString());
 
-        const cachedQueue = (await this.getGuildSettings(guild.id))?.cachedQueue;
         const results = await this.player.search(query, {
             requestedBy: author,
             searchEngine: QueryType.AUTO
@@ -86,7 +85,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
             }
         });
 
-        const connection = await queue.connect(author.voice.channel).catch(() => null);
+        const connection = !queue.connection ? await queue.connect(author.voice.channel).catch(() => null) : true;
 
         if (!connection) {
             if (!queue.destroyed) queue.stop();
@@ -94,10 +93,11 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         }
 
         const embed = new EmbedBuilder().setColor(this.getMessage('embedColor'));
+        const cachedQueue = (await this.getGuildSettings(guild.id))?.cachedQueue;
         const tracks = results.playlist ? results.playlist.tracks : filterOfficialAudio(results.tracks);
         const details = results.playlist ? results.playlist : tracks[0];
 
-        queue.addTracks([...(cachedQueue?.getTracks() ?? []), ...tracks]);
+        queue.addTracks([...tracks, ...((cachedQueue?.enabled ? cachedQueue?.getTracks() : null) ?? [])]);
 
         embed
             .setTitle(details.title)
@@ -123,7 +123,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
             this.logger.err(err);
         });
 
-        if (!error) await cachedQueue?.setTracks([]).update().catch(() => {});
+        if (!error && cachedQueue?.tracks.length) await cachedQueue?.setTracks([]).update().catch(() => {});
         return error ? this.getMessageEmbed('errorPlaying', false, details.title) : embed;
     }
 

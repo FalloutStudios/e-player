@@ -4,6 +4,7 @@ export const ePlayerMessages = {
     loading: 'Please wait...',
     unknownError: 'An error occured',
     errorPlaying: 'description:Error playing **{0}**',
+    noQueue: 'No queue',
     noQueuePermissions: 'No permissions to manage queue',
     noSearchQuery: 'Enter a search query',
     noResults: 'No results found',

@@ -26,7 +26,7 @@ export class GuildSettings<M extends EPlayerMetadata = EPlayerMetadata> extends 
     public djSettings: GuildDjSettings<M>|null = null;
     public cachedQueue: GuildCachedQueue<M>|null = null;
 
-    get queue() { return this._queue; }
+    get queue() { return this.getQueue(); }
     get guild() { return this._guild; }
 
     constructor(options: GuildSettingsOptions) {
@@ -65,7 +65,7 @@ export class GuildSettings<M extends EPlayerMetadata = EPlayerMetadata> extends 
 
     public getQueue(): Queue<M>|null {
         this._queue = this.player.getQueue<M>(this._guild);
-        return this.queue;
+        return this._queue;
     }
 
     public setCommandsChannel(channel?: GuildTextBasedChannel): this {

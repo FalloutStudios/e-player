@@ -5,7 +5,7 @@ import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
 import { Player, PlayerOptions, QueryType, Queue } from 'discord-player';
 import { EPlayerMessages, ePlayerMessages } from './EPlayer/messages';
 import EPlayerBaseModule from './_eplayer.base';
-import { createConfig, createGuildSettingsData, deleteGuildSettingsData } from './_eplayer.util';
+import { createConfig, createGuildSettingsData, deleteGuildSettingsData, filterOfficialAudio } from './_eplayer.util';
 import { PrismaClient } from '@prisma/client';
 import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
@@ -32,6 +32,12 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         this.player.on('debug', (queue, message) => this.logger.debug(message));
         this.player.on('connectionError', (queue, error) => this.logger.err(error));
         this.player.on('error', (queue, error) => this.logger.err(error));
+        this.player.on('botDisconnect', async queue => {
+            this.logger.warn(`Saving queue from ${queue.guild.id}`);
+            const cachedQueue = (await this.getGuildSettings(queue.guild.id))?.cachedQueue;
+
+            await (cachedQueue?.cacheCurrentQueue(<Queue<EPlayerMetadata>>(queue)))?.update();
+        })
 
         client.on('guildCreate', async guild => createGuildSettingsData(guild.id));
         client.on('guildDelete', async guild => deleteGuildSettingsData(guild.id));
@@ -65,6 +71,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         if (guild.members.me.voice.channel && author.voice.channel.id !== guild.members.me.voice.channel.id) return this.getMessageEmbed('InDifferentVoiceChannel', false, guild.members.me.voice.channel.toString());
         if (!author.voice.channel.permissionsFor(guild.members.me).has(this.config.requiredBotVoicePermissions)) return this.getMessageEmbed('noVoicePermissions', false, author.voice.channel.toString());
 
+        const cachedQueue = (await this.getGuildSettings(guild.id))?.cachedQueue;
         const results = await this.player.search(query, {
             requestedBy: author,
             searchEngine: QueryType.AUTO
@@ -72,9 +79,13 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
 
         if (!results || !(results.playlist?.tracks ?? results.tracks).length) return this.getMessageEmbed('noResults');
 
-        const queue = this.player.createQueue<EPlayerMetadata>(guild, { ...this.config.player, metadata: {
-            textChannel: textChannel && textChannel.permissionsFor(guild.members.me).has(this.config.requiredBotTextPermissions) ? textChannel : undefined
-        } });
+        const queue = this.player.createQueue<EPlayerMetadata>(guild, {
+            ...this.config.player,
+            metadata: {
+                textChannel: textChannel && textChannel.permissionsFor(guild.members.me).has(this.config.requiredBotTextPermissions) ? textChannel : undefined
+            }
+        });
+
         const connection = await queue.connect(author.voice.channel).catch(() => null);
 
         if (!connection) {
@@ -83,9 +94,10 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         }
 
         const embed = new EmbedBuilder().setColor(this.getMessage('embedColor'));
-        const details = results.playlist ? results.playlist : results.tracks[0];
+        const tracks = results.playlist ? results.playlist.tracks : filterOfficialAudio(results.tracks);
+        const details = results.playlist ? results.playlist : tracks[0];
 
-        queue.addTracks(results.playlist ? results.playlist.tracks : results.tracks);
+        queue.addTracks([...(cachedQueue?.getTracks() ?? []), ...tracks]);
 
         embed
             .setTitle(details.title)
@@ -106,11 +118,12 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         }
 
         let error = false;
-        if (!queue.playing) await queue.play().catch(error => {
+        if (!queue.playing) await queue.play().catch(err => {
             error = true;
-            this.logger.err(error);
+            this.logger.err(err);
         });
 
+        if (!error) await cachedQueue?.setTracks([]).update().catch(() => {});
         return error ? this.getMessageEmbed('errorPlaying', false, details.title) : embed;
     }
 

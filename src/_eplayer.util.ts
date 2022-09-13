@@ -6,6 +6,7 @@ import { GuildSettings } from './EPlayer/classes/GuildSettings';
 import { GuildDjSettings } from './EPlayer/classes/GuildDjSettings';
 import { GuildCachedQueue } from './EPlayer/classes/GuildCachedQueue';
 import eplayer from './eplayer';
+import { Track } from 'discord-player';
 
 export function createConfig(configPath: string, defaultData: any): string {
     if (fs.existsSync(configPath)) return fs.readFileSync(configPath, 'utf8');
@@ -41,4 +42,18 @@ export async function deleteGuildSettingsData(id: string): Promise<void> {
     if (!data) return;
 
     await data.delete();
+}
+
+export function filterOfficialAudio(tracks: Track[], returnFirstIfNoOfficalAudio: boolean = true): Track[] {
+    const filtered = tracks.filter(track => {
+        const title = track.title.toLowerCase();
+
+        return title.includes('official') && title.includes('audio') || title.includes('audio') || title.includes('lyrics');
+    });
+
+    return filtered.length
+        ? filtered
+        : returnFirstIfNoOfficalAudio
+            ? tracks.length ? [tracks[0]] : []
+            : [];
 }

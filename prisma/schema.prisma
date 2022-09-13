@@ -21,17 +21,18 @@ model GuildSettings {
 }
 
 model GuildDjSettings {
-  id                  String @id @unique
-  enabled   Boolean @default(false)
-  requiredPermissions BigInt @default(0)
-  allowedRoles        Json   @default("[]")
-  allowedUsers        Json   @default("[]")
+  id                  String  @id @unique
+  enabled             Boolean @default(false)
+  requiredPermissions BigInt  @default(0)
+  allowedRoles        Json    @default("[]")
+  allowedUsers        Json    @default("[]")
 
   guildSettings GuildSettings @relation(fields: [id], references: [id])
 }
 
 model GuildCachedQueue {
   id                String  @id @unique
+  enabled           Boolean @default(true)
   tracks            Json    @default("[]")
   commandsChannelId String?
 

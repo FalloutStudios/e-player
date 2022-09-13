@@ -33,11 +33,11 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         this.player.on('connectionError', (queue, error) => this.logger.err(error));
         this.player.on('error', (queue, error) => this.logger.err(error));
         this.player.on('botDisconnect', async queue => {
-            this.logger.warn(`Saving queue from ${queue.guild.id}`);
+            this.logger.debug(`Saving queue from ${queue.guild.id}`);
             const cachedQueue = (await this.getGuildSettings(queue.guild.id))?.cachedQueue;
 
             await (cachedQueue?.cacheCurrentQueue(<Queue<EPlayerMetadata>>(queue)))?.update();
-            this.logger.warn(`Saved queue`, ...[...(queue.previousTracks.length > 1 ? [queue.previousTracks[queue.previousTracks.length - 1]] : []), ...queue.tracks].map(t => t.title));
+            this.logger.debug(`Saved queue`, ...[...(queue.previousTracks.length > 1 ? [queue.previousTracks[queue.previousTracks.length - 1]] : []), ...queue.tracks].map(t => t.title));
         })
 
         client.on('guildCreate', async guild => createGuildSettingsData(guild.id));

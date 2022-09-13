@@ -32,6 +32,14 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         this.player.on('debug', (queue, message) => this.logger.debug(message));
         this.player.on('connectionError', (queue, error) => this.logger.err(error));
         this.player.on('error', (queue, error) => this.logger.err(error));
+
+        this.player.on('trackStart', async (queue, track) => {
+            const textChannel = (queue as Queue<EPlayerMetadata>)?.metadata?.textChannel;
+
+            textChannel?.send(`Now playing **${track.title}**`);
+            // TODO: Make interactive embed
+        });
+
         this.player.on('botDisconnect', async queue => {
             this.logger.debug(`Saving queue from ${queue.guild.id}`);
             const cachedQueue = (await this.getGuildSettings(queue.guild.id))?.cachedQueue;

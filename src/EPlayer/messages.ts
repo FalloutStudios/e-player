@@ -5,6 +5,7 @@ export const ePlayerMessages = {
     unknownError: 'An error occured',
     errorPlaying: 'description:Error playing **{0}**',
     noQueue: 'No queue',
+    noTracks: 'No tracks found',
     noQueuePermissions: 'No permissions to manage queue',
     noSearchQuery: 'Enter a search query',
     noResults: 'No results found',

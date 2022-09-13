@@ -59,10 +59,11 @@ export class GuildCachedQueue<M extends EPlayerMetadata = EPlayerMetadata> exten
     }
 
     public cacheCurrentQueue(queue?: Queue<M>): this {
-        if (!this.guildSettings.queue && !queue) throw new Error(`No queue for ${this.guild.id}`);
+        queue = queue ?? this.guildSettings.queue ?? undefined;
+        if (!queue) throw new Error(`No queue for ${this.guild.id}`);
 
-        this.setCommandsChannel((queue ?? this.guildSettings.queue)?.metadata?.textChannel);
-        this.setTracks((queue ?? this.guildSettings.queue)?.tracks ?? []);
+        this.setCommandsChannel(queue.metadata?.textChannel);
+        this.setTracks([...(queue.previousTracks.length > 1 ? [queue.previousTracks[queue.previousTracks.length - 1]] : []), ...queue.tracks]);
 
         return this;
     }

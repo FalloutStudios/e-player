@@ -1,11 +1,11 @@
-import { Collection, EmbedBuilder, Guild, GuildMember, GuildResolvable, GuildTextBasedChannel } from 'discord.js';
+import { Collection, Embed, EmbedBuilder, Guild, GuildMember, GuildResolvable, GuildTextBasedChannel } from 'discord.js';
 import { AnyCommandBuilder, AnyCommandData, cwd, RecipleClient, RecipleScript } from 'reciple';
 import { EPlayerConfig, ePlayerDefaultConfig, EPlayerMetadata } from './EPlayer/config';
 import { escapeRegExp, Logger, replaceAll, trimChars } from 'fallout-utility';
-import { Player, PlayerOptions, QueryType, Queue } from 'discord-player';
+import { Player, PlayerOptions, Queue } from 'discord-player';
 import { EPlayerMessages, ePlayerMessages } from './EPlayer/messages';
 import EPlayerBaseModule from './_eplayer.base';
-import { createConfig, createGuildSettingsData, deleteGuildSettingsData, filterOfficialAudio } from './_eplayer.util';
+import { createConfig, createGuildSettingsData, createQueueAndConnect, deleteGuildSettingsData, getOfficialAudio, makePlayCommandEmbed } from './_eplayer.util';
 import { PrismaClient } from '@prisma/client';
 import { mkdirSync, readdirSync } from 'fs';
 import path from 'path';
@@ -37,6 +37,7 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
             const cachedQueue = (await this.getGuildSettings(queue.guild.id))?.cachedQueue;
 
             await (cachedQueue?.cacheCurrentQueue(<Queue<EPlayerMetadata>>(queue)))?.update();
+            this.logger.warn(`Saved queue`, ...[...(queue.previousTracks.length > 1 ? [queue.previousTracks[queue.previousTracks.length - 1]] : []), ...queue.tracks].map(t => t.title));
         })
 
         client.on('guildCreate', async guild => createGuildSettingsData(guild.id));
@@ -71,51 +72,24 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         if (guild.members.me.voice.channel && author.voice.channel.id !== guild.members.me.voice.channel.id) return this.getMessageEmbed('InDifferentVoiceChannel', false, guild.members.me.voice.channel.toString());
         if (!author.voice.channel.permissionsFor(guild.members.me).has(this.config.requiredBotVoicePermissions)) return this.getMessageEmbed('noVoicePermissions', false, author.voice.channel.toString());
 
-        const results = await this.player.search(query, {
-            requestedBy: author,
-            searchEngine: QueryType.AUTO
-        }).catch(() => null);
-
+        const results = await this.player.search(query, { requestedBy: author }).catch(() => null);
         if (!results || !(results.playlist?.tracks ?? results.tracks).length) return this.getMessageEmbed('noResults');
 
-        const queue = this.player.createQueue<EPlayerMetadata>(guild, {
-            ...this.config.player,
-            metadata: {
-                textChannel: textChannel && textChannel.permissionsFor(guild.members.me).has(this.config.requiredBotTextPermissions) ? textChannel : undefined
-            }
-        });
+        const queue = await createQueueAndConnect(guild, author.voice.channel, {
+            ...options,
+            metadata: { textChannel }
+        }).catch(() => null);
 
-        const connection = !queue.connection ? await queue.connect(author.voice.channel).catch(() => null) : true;
-
-        if (!connection) {
-            if (!queue.destroyed) queue.stop();
+        if (!queue?.connection) {
+            if (!queue?.destroyed) queue?.stop();
             return this.getMessageEmbed('cantConnect', false, author.voice.channel.toString());
         }
 
-        const embed = new EmbedBuilder().setColor(this.getMessage('embedColor'));
         const cachedQueue = (await this.getGuildSettings(guild.id))?.cachedQueue;
-        const tracks = results.playlist ? results.playlist.tracks : filterOfficialAudio(results.tracks);
-        const details = results.playlist ? results.playlist : tracks[0];
+        const tracks = results.playlist ? results.playlist.tracks : getOfficialAudio(results.tracks);
+        const embed = makePlayCommandEmbed(results.playlist ? results.playlist : tracks[0], author.user);
 
         queue.addTracks([...tracks, ...((cachedQueue?.enabled ? cachedQueue?.getTracks() : null) ?? [])]);
-
-        embed
-            .setTitle(details.title)
-            .setDescription(details.description || ' ')
-            .setAuthor({
-                name: 'Added',
-                iconURL: this.client.user?.displayAvatarURL()
-            })
-            .setFooter({
-                text: `Requested by ${author.user.tag}`,
-                iconURL: author.user.displayAvatarURL()
-            });
-
-        if (this.config.largeThumbnails) {
-            embed.setImage(details.thumbnail);
-        } else {
-            embed.setThumbnail(details.thumbnail);
-        }
 
         let error = false;
         if (!queue.playing) await queue.play().catch(err => {
@@ -124,7 +98,41 @@ export class EPlayer extends EPlayerBaseModule implements RecipleScript {
         });
 
         if (!error && cachedQueue?.tracks.length) await cachedQueue?.setTracks([]).update().catch(() => {});
-        return error ? this.getMessageEmbed('errorPlaying', false, details.title) : embed;
+        return error ? this.getMessageEmbed('errorPlaying', false, (results.playlist ? results.playlist : tracks[0]).title) : embed;
+    }
+
+    public async playCachedTracks(guild: Guild, author: GuildMember, textChannel?: GuildTextBasedChannel, options?: PlayerOptions): Promise<EmbedBuilder> {
+        if (!guild || !author || !guild.members.me) return this.getMessageEmbed('notInGuild');
+        if (!author.voice.channel) return this.getMessageEmbed('notInVoiceChannel');
+        if (guild.members.me.voice.channel && author.voice.channel.id !== guild.members.me.voice.channel.id) return this.getMessageEmbed('InDifferentVoiceChannel', false, guild.members.me.voice.channel.toString());
+        if (!author.voice.channel.permissionsFor(guild.members.me).has(this.config.requiredBotVoicePermissions)) return this.getMessageEmbed('noVoicePermissions', false, author.voice.channel.toString());
+
+        const cachedQueue = (await this.getGuildSettings(guild.id))?.cachedQueue;
+        if (!cachedQueue?.tracks.length || !cachedQueue.enabled) return this.getMessageEmbed('noTracks');
+
+        const queue = await createQueueAndConnect(guild, author.voice.channel, {
+            ...options,
+            metadata: { textChannel }
+        }).catch(() => null);
+
+        if (!queue?.connection) {
+            if (!queue?.destroyed) queue?.stop();
+            return this.getMessageEmbed('cantConnect', false, author.voice.channel.toString());
+        }
+
+        const tracks = cachedQueue.getTracks();
+        const embed = makePlayCommandEmbed(tracks[0], author.user);
+
+        queue.addTracks(tracks);
+
+        let error = false;
+        if (!queue.playing) await queue.play().catch(err => {
+            error = true;
+            this.logger.err(err);
+        });
+
+        if (!error && cachedQueue?.tracks.length) await cachedQueue?.setTracks([]).update().catch(() => {});
+        return error ? this.getMessageEmbed('errorPlaying', false, tracks[0].title) : embed;
     }
 
     public togglePause(queue: Queue): 'PAUSED'|'RESUMED'|'ERROR' {

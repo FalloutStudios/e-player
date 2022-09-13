@@ -11,14 +11,14 @@ export default (player: EPlayer): AnyCommandData[] => [
             {
                 type: ApplicationCommandOptionType.String,
                 name: 'search',
-                description: 'Search for song or enter a URL',
-                required: true
+                description: 'Search for song or enter a URL'
             }
         ],
         async execute(data) {
             const interaction = data.interaction;
             const member = interaction.member as GuildMember;
             const guild = interaction.guild;
+            const query = interaction.options.getString('search');
 
             if (!member || !guild || !interaction.channel || interaction.channel.isDMBased()) {
                 await interaction.reply({ embeds: [player.getMessageEmbed('notInGuild')] });
@@ -27,7 +27,9 @@ export default (player: EPlayer): AnyCommandData[] => [
 
             await interaction.deferReply();
 
-            const embed = await player.play(interaction.options.getString('search', true), guild, member, interaction.channel);
+            const embed = query
+                ? await player.play(query, guild, member, interaction.channel)
+                : await player.playCachedTracks(guild, member, interaction.channel);
 
             await interaction.editReply({ embeds: [embed] });
         }

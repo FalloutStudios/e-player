@@ -4,12 +4,13 @@
     ],
     "compilerOptions": {
         "target": "ESNext",
-        "module": "commonjs",
+        "module": "Node16",
         "rootDir": "./src",
         "outDir": "./modules",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
+        "sourceMap": true,
         "skipLibCheck": true
     }
 }

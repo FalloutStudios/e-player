@@ -3,13 +3,14 @@
         "src/**/*"
     ],
     "compilerOptions": {
-        "target": "es2016",
-        "module": "commonjs",
+        "target": "ESNext",
+        "module": "Node16",
         "rootDir": "./src",
         "outDir": "./modules",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
+        "sourceMap": true,
         "skipLibCheck": true
     }
 }

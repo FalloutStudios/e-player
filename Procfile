@@ -1,1 +1,0 @@
-worker: npx reciple -D

@@ -1,16 +1,20 @@
-import { ColorResolvable } from 'discord.js';
 import { PlayerOptions, PlayerInitOptions } from 'discord-player';
+import { PermissionResolvable } from 'discord.js';
+import messages from './messages';
 
 export interface BaseConfigType {
-    embedColor: ColorResolvable;
-    errorEmbedColor: ColorResolvable;
     playerOptions: PlayerOptions & PlayerInitOptions;
+    requiredVoiceChannelPermissions: PermissionResolvable;
+    messages: typeof messages,
+    [k: string]: any
 }
 
 export const defaultConfig = {
-    embedColor: 'Red',
-    errorEmbedColor: 'Grey',
-    playerOptions: {}
+    playerOptions: {},
+    requiredVoiceChannelPermissions: ['Connect', 'Speak'],
+    messages,
+    e: 'e'
 } satisfies BaseConfigType;
 
 export type Config = typeof defaultConfig & BaseConfigType;
+export default defaultConfig;

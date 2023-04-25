@@ -24,7 +24,7 @@
         "reciple": "^1.7.0",
         "sodium": "^3.0.2",
         "tweetnacl": "^1.0.3",
-        "yaml": "^2.1.1"
+        "yaml": "^2.2.2"
     },
     "devDependencies": {
         "@types/ms": "^0.7.31",
